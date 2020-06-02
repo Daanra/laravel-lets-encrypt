@@ -12,15 +12,13 @@ class LetsEncryptServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/skeleton.php' => config_path('skeleton.php'),
+                __DIR__.'/../config/lets_encrypt.php' => config_path('lets_encrypt.php'),
             ], 'config');
 
             $this->commands([
                 LetsEncryptGenerateCommand::class,
             ]);
         }
-
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'skeleton');
     }
 
     public function register()
