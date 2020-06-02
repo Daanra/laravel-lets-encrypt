@@ -23,6 +23,6 @@ class LetsEncryptServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/skeleton.php', 'skeleton');
+        $this->mergeConfigFrom(__DIR__.'/../config/lets_encrypt.php', 'skeleton');
     }
 }
