@@ -44,8 +44,8 @@ Creating a new SSL certificate for a specific domain is easy:
 // Puts several jobs on the queue to handle the communication with the lets-encrypt server
 $pendingDispatch = Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com');
 
-// You could, for example, chain a some jobs to enable a new virtual host
-// in Apache and send a notification once the website is available through SSL
+// You could, for example, chain some jobs to enable a new virtual host
+// in Apache and send a notification once the website is available
 $pendingDispatch->chain([
     new CreateNewApacheVirtualHost('mydomain.com'), 
     new ReloadApache(),
