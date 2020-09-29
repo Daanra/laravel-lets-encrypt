@@ -40,12 +40,15 @@ If you do not want to do this, you have to configure a custom path generator, se
 ## Usage
 
 Creating a new SSL certificate for a specific domain is easy:
-``` php
+```php
 // Puts several jobs on the queue to handle the communication with the lets-encrypt server
 $pendingDispatch = Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com');
 
-// You could, for example, chain a notification for when the SSL certificate is successfully created:
+// You could, for example, chain a some jobs to enable a new virtual host
+// in Apache and send a notification once the website is available through SSL
 $pendingDispatch->chain([
+    new CreateNewApacheVirtualHost('mydomain.com'), 
+    new ReloadApache(),
     new NotifyUserOfNewCertificate(request()->user()),
 ]);
 ```
