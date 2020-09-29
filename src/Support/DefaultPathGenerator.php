@@ -8,6 +8,6 @@ class DefaultPathGenerator implements PathGenerator
 {
     public function getPath(string $token): string
     {
-        return 'app/public/.well-known/acme-challenge/' . $token;
+        return 'public/.well-known/acme-challenge/' . $token;
     }
 }
