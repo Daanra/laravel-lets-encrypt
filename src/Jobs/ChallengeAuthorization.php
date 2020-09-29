@@ -2,7 +2,6 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use AcmePhp\Core\AcmeClient;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Contracts\Queue\ShouldQueue;
