@@ -47,10 +47,10 @@ class LetsEncrypt
 
         $email = config('lets_encrypt.universal_email_address', false);
 
-        return (new PendingChain(new RegisterAccount($email), [
+        return RegisterAccount::withChain([
             new RequestAuthorization($domain),
             new RequestCertificate($domain),
-        ]))->dispatch();
+        ])->dispatch();
     }
 
     public function renew(string $domain): PendingDispatch
