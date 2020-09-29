@@ -2,7 +2,6 @@
 
 namespace Daanra\LaravelLetsEncrypt\Support;
 
-use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Contracts\PathGenerator;
 
 class DefaultPathGenerator implements PathGenerator

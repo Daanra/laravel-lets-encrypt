@@ -32,7 +32,6 @@ class LetsEncryptGenerateCommand extends Command
                 $this->comment('');
             }, false);
         });
-
     }
 
     /**

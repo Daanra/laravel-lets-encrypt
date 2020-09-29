@@ -2,8 +2,8 @@
 
 namespace Spatie\Skeleton\Tests;
 
-use Orchestra\Testbench\TestCase as Orchestra;
 use Daanra\LaravelLetsEncrypt\LetsEncryptServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {

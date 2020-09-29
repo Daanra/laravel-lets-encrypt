@@ -2,8 +2,6 @@
 
 namespace Daanra\LaravelLetsEncrypt\Contracts;
 
-use AcmePhp\Core\Protocol\AuthorizationChallenge;
-
 /**
  * Interface for when you override the DefaultPathGenerator.
  *
