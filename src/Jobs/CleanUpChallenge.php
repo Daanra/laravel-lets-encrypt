@@ -30,6 +30,6 @@ class CleanUpChallenge implements ShouldQueue
     public function handle()
     {
         $generator = PathGeneratorFactory::create();
-        Storage::delete($generator->getPath($this->challenge->getToken()));
+        Storage::delete($generator->getChallengePath($this->challenge->getToken()));
     }
 }

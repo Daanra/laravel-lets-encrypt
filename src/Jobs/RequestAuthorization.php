@@ -35,7 +35,7 @@ class RequestAuthorization implements ShouldQueue
 
     protected function placeChallenge(AuthorizationChallenge $challenge): void
     {
-        $path = PathGeneratorFactory::create()->getPath($challenge->getToken());
+        $path = PathGeneratorFactory::create()->getChallengePath($challenge->getToken());
         $success = Storage::put($path, $challenge->getPayload());
 
         if ($success === false) {
