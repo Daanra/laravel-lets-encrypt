@@ -6,6 +6,7 @@ use AcmePhp\Core\AcmeClient;
 use AcmePhp\Ssl\CertificateRequest;
 use AcmePhp\Ssl\DistinguishedName;
 use AcmePhp\Ssl\Generator\KeyPairGenerator;
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -16,12 +17,9 @@ class RequestCertificate implements ShouldQueue
     /** @var string */
     protected $domain;
 
-    /** @var AcmeClient */
-    protected $client;
 
-    public function __construct(AcmeClient $client, string $domain)
+    public function __construct(string $domain)
     {
-        $this->client = $client;
         $this->domain = $domain;
     }
 
@@ -29,6 +27,7 @@ class RequestCertificate implements ShouldQueue
     {
         $distinguishedName = new DistinguishedName($this->domain);
         $csr = new CertificateRequest($distinguishedName, (new KeyPairGenerator())->generateKeyPair());
-        $this->client->requestCertificate($this->domain, $csr);
+        $client = LetsEncrypt::createClient();
+        $client->requestCertificate($this->domain, $csr);
     }
 }

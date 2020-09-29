@@ -37,8 +37,6 @@ class LetsEncrypt
 
     public function create(string $domain): PendingDispatch
     {
-        $acmeClient = $this->createClient();
-
         if (Str::contains($domain, [':', '/', ','])) {
             throw new InvalidDomainException($domain);
         }
@@ -49,26 +47,24 @@ class LetsEncrypt
 
         $email = config('lets_encrypt.universal_email_address', false);
 
-        return (new PendingChain(new RegisterAccount($acmeClient, $email), [
-            new RequestAuthorization($acmeClient, $domain),
-            new RequestCertificate($acmeClient, $domain),
+        return (new PendingChain(new RegisterAccount($email), [
+            new RequestAuthorization($domain),
+            new RequestCertificate($domain),
         ]))->dispatch();
     }
 
     public function renew(string $domain): PendingDispatch
     {
-        $acmeClient = $this->createClient();
-
         if (Str::contains($domain, [':', '/', ','])) {
             throw new InvalidDomainException($domain);
         }
 
-        $email = ($this->email_address ?: config('lets_encrypt.universal_email_address', false));
+        $email = config('lets_encrypt.universal_email_address', false);
 
         return Bus::chain([
-            new RegisterAccount($acmeClient, $email),
-            new RequestAuthorization($acmeClient, $domain),
-            new RequestCertificate($acmeClient, $domain),
+            new RegisterAccount($email),
+            new RequestAuthorization($domain),
+            new RequestCertificate($domain),
         ])->dispatch();
     }
 
@@ -76,7 +72,7 @@ class LetsEncrypt
      * @return AcmeClient
      * @throws InvalidKeyPairConfiguration
      */
-    protected function createClient(): AcmeClient
+    public function createClient(): AcmeClient
     {
         $keyPair = $this->getKeyPair();
         $secureHttpClient = $this->factory->createSecureHttpClient($keyPair);

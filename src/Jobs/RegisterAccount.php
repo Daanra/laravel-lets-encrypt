@@ -2,7 +2,7 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use AcmePhp\Core\AcmeClient;
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -13,17 +13,14 @@ class RegisterAccount implements ShouldQueue
     /** @var string */
     protected $email;
 
-    /** @var AcmeClient */
-    protected $client;
-
-    public function __construct(AcmeClient $client, string $email)
+    public function __construct(string $email)
     {
-        $this->client = $client;
         $this->email = $email;
     }
 
     public function handle()
     {
-        $this->client->registerAccount(null, 'daanraatjes@gmail.com');
+        $client = LetsEncrypt::createClient();
+        $client->registerAccount(null, 'daanraatjes@gmail.com');
     }
 }
