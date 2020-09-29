@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Skeleton\Tests;
+namespace Daanra\LaravelLetsEncrypt\Tests;
 
 class ExampleTest extends TestCase
 {

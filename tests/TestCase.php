@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Skeleton\Tests;
+namespace Daanra\LaravelLetsEncrypt\Tests;
 
 use Daanra\LaravelLetsEncrypt\LetsEncryptServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
