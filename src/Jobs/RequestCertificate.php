@@ -7,12 +7,15 @@ use AcmePhp\Ssl\CertificateRequest;
 use AcmePhp\Ssl\DistinguishedName;
 use AcmePhp\Ssl\Generator\KeyPairGenerator;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class RequestCertificate implements ShouldQueue
 {
-    use Dispatchable;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
     /** @var string */
     protected $domain;

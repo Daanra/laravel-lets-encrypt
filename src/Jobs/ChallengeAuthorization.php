@@ -2,15 +2,17 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use AcmePhp\Core\AcmeClient;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class ChallengeAuthorization implements ShouldQueue
 {
-    use Dispatchable;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
     /** @var AuthorizationChallenge */
     protected $challenge;

@@ -3,12 +3,15 @@
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class RegisterAccount implements ShouldQueue
 {
-    use Dispatchable;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
     /** @var string */
     protected $email;

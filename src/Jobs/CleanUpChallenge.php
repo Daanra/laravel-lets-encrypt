@@ -5,13 +5,16 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 use AcmePhp\Core\AcmeClient;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
 class CleanUpChallenge implements ShouldQueue
 {
-    use Dispatchable;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
     /** @var AuthorizationChallenge */
     protected $challenge;
