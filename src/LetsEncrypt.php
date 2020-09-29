@@ -46,7 +46,7 @@ class LetsEncrypt
             throw new DomainAlreadyExists($domain);
         }
 
-        $email = ($this->email_address ?: config('lets_encrypt.universal_email_address', false));
+        $email = config('lets_encrypt.universal_email_address', false);
 
         return Bus::chain([
             new RegisterAccount($acmeClient, $email),
