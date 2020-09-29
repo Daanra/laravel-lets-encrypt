@@ -6,6 +6,7 @@ use AcmePhp\Ssl\Certificate;
 use AcmePhp\Ssl\PrivateKey;
 use Daanra\LaravelLetsEncrypt\Contracts\PathGenerator;
 use Daanra\LaravelLetsEncrypt\Encoders\PemEncoder;
+use Daanra\LaravelLetsEncrypt\Exceptions\FailedToStoreCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,12 +62,15 @@ class StoreCertificate implements ShouldQueue
      * @param PathGenerator $generator
      * @param string $filename
      * @param string $contents
+     * @throws FailedToStoreCertificate
      */
     protected function storeInPossiblyNonExistingDirectory(PathGenerator $generator, string $filename, string $contents): void
     {
         $path = $generator->getCertificatePath($this->domain, $filename);
         $directory = File::dirname($path);
         File::ensureDirectoryExists($directory);
-        File::put($path, $contents);
+        if (File::put($path, $contents) === false) {
+            throw new FailedToStoreCertificate($path);
+        }
     }
 }
