@@ -2,24 +2,48 @@
 
 namespace Daanra\LaravelLetsEncrypt\Commands;
 
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
+use Symfony\Component\Console\Input\InputOption;
+use Throwable;
 
 class LetsEncryptGenerateCommand extends Command
 {
-    public $signature = 'lets-encrypt:generate 
-            {domain* : The domains for which you want to generate a certificate}
-    ';
+    protected $name = 'lets-encrypt:create';
 
-    public $description = 'Generates an SSL certificate through Let\'s Encrypt.';
+    protected $description = 'Creates an SSL certificate through Let\'s Encrypt.';
 
     public function handle()
     {
-        if (! $domains = $this->argument('domain')) {
-            $domains = $this->ask('For which domain do you want to generate an SSL certificate? [Separate multiple domains with comma\'s]');
+        if (! $domains = $this->option('domain')) {
+            $domains = $this->ask('For which domain do you want to create an SSL certificate? [Separate multiple domains with comma\'s]');
         }
+        $domains = collect(explode(',', $domains));
 
+        $this->comment('Generating certificates for ' . count($domains) . ' domains.');
+        $domains->each(function (string $domain) {
+            $this->comment($domain  . ':');
 
-        $this->comment(implode($domains, ' <> '));
+            rescue(function () use ($domain) {
+                LetsEncrypt::create($domain);
+            }, function (Throwable $e) use ($domain) {
+                $this->error('Failed to generate a certificate for ' . $domain);
+                $this->error($e->getMessage());
+                $this->comment('');
+            }, false);
+        });
+
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['domain', 'd', InputOption::VALUE_OPTIONAL, 'Generate a certificate for the given domain name(s). Multiple domains can be separated by a comma.'],
+        ];
     }
 }
