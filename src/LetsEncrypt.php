@@ -51,7 +51,7 @@ class LetsEncrypt
         return Bus::chain([
             new RegisterAccount($acmeClient, $email),
             new RequestAuthorization($acmeClient, $domain),
-            new RequestCertificate($acmeClient, $domain)
+            new RequestCertificate($acmeClient, $domain),
         ])->dispatch();
     }
 
@@ -68,7 +68,7 @@ class LetsEncrypt
         return Bus::chain([
             new RegisterAccount($acmeClient, $email),
             new RequestAuthorization($acmeClient, $domain),
-            new RequestCertificate($acmeClient, $domain)
+            new RequestCertificate($acmeClient, $domain),
         ])->dispatch();
     }
 
@@ -97,7 +97,7 @@ class LetsEncrypt
         $publicKeyPath = config('lets_encrypt.public_key_path', storage_path('app/lets-encrypt/keys/account.pub.pem'));
         $privateKeyPath = config('lets_encrypt.private_key_path', storage_path('app/lets-encrypt/keys/account.pem'));
 
-        if (!file_exists($privateKeyPath) && !file_exists($publicKeyPath)) {
+        if (! file_exists($privateKeyPath) && ! file_exists($publicKeyPath)) {
             $keyPairGenerator = new KeyPairGenerator();
             $keyPair = $keyPairGenerator->generateKeyPair();
 
@@ -110,11 +110,11 @@ class LetsEncrypt
             return $keyPair;
         }
 
-        if (!file_exists($privateKeyPath)) {
+        if (! file_exists($privateKeyPath)) {
             throw new InvalidKeyPairConfiguration('Private key does not exist but public key does.');
         }
 
-        if (!file_exists($publicKeyPath)) {
+        if (! file_exists($publicKeyPath)) {
             throw new InvalidKeyPairConfiguration('Public key does not exist but private key does.');
         }
 

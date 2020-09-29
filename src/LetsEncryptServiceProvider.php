@@ -8,8 +8,8 @@ use AcmePhp\Core\Http\ServerErrorHandler;
 use AcmePhp\Ssl\Parser\KeyParser;
 use AcmePhp\Ssl\Signer\DataSigner;
 use Daanra\LaravelLetsEncrypt\Commands\LetsEncryptGenerateCommand;
-use Illuminate\Support\ServiceProvider;
 use GuzzleHttp\Client as GuzzleHttpClient;
+use Illuminate\Support\ServiceProvider;
 
 class LetsEncryptServiceProvider extends ServiceProvider
 {
