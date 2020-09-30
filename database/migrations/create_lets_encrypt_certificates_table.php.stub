@@ -13,7 +13,7 @@ class CreateLetsEncryptCertificatesTable extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->string('domain');
-            $table->timestamp('last_renewed_at');
+            $table->timestamp('last_renewed_at')->nullable();
         });
     }
 
