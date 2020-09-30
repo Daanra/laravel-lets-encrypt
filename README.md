@@ -4,8 +4,9 @@
 [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/daanra/laravel-lets-encrypt/run-tests?label=tests)](https://github.com/daanra/laravel-lets-encrypt/actions?query=workflow%3Arun-tests+branch%3Amaster)
 [![Total Downloads](https://img.shields.io/packagist/dt/daanra/laravel-lets-encrypt.svg?style=flat-square)](https://packagist.org/packages/daanra/laravel-lets-encrypt)
 
-A Laravel package for easily generating and renewing SSL certificates using Let's Encrypt. This is especially useful if
-you have a multitenancy application and each tenant may be hosted on its own domain.
+A Laravel package for easily generating and renewing SSL certificates using Let's Encrypt. This package is especially useful if
+you have a Laravel application that manages the SSL certificates of many domains. This package is **not** recommended if
+you just need to generate a single SSL certificate for your application.
 
 This package is essentially a Laravel-friendly wrapper around [Acme PHP](https://github.com/acmephp/acmephp). 
 
@@ -51,6 +52,9 @@ $pendingDispatch->chain([
     new ReloadApache(),
     new NotifyUserOfNewCertificate(request()->user()),
 ]);
+
+// You can also do it synchronously:
+Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('mydomain.com');
 ```
 
 You could also achieve the same by using an artisan command:
