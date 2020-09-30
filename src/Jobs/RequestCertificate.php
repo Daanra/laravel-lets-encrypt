@@ -7,6 +7,7 @@ use AcmePhp\Ssl\DistinguishedName;
 use AcmePhp\Ssl\Generator\KeyPairGenerator;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -19,9 +20,12 @@ class RequestCertificate implements ShouldQueue
     /** @var string */
     protected $domain;
 
+    /** @var bool */
+    protected $sync;
 
     public function __construct(string $domain)
     {
+        $this->sync = false;
         $this->domain = $domain;
     }
 
@@ -33,6 +37,22 @@ class RequestCertificate implements ShouldQueue
         $certificateResponse = $client->requestCertificate($this->domain, $csr);
         $certificate = $certificateResponse->getCertificate();
         $privateKey = $csr->getKeyPair()->getPrivateKey();
-        StoreCertificate::dispatch($this->domain, $certificate, $privateKey);
+        if ($this->sync) {
+            StoreCertificate::dispatchNow($this->domain, $certificate, $privateKey);
+        } else {
+            StoreCertificate::dispatch($this->domain, $certificate, $privateKey);
+        }
+    }
+
+    protected function setSync(bool $sync)
+    {
+        $this->sync = $sync;
+    }
+
+    public static function dispatchNow(string $domain)
+    {
+        $job = new static($domain);
+        $job->setSync(true);
+        app(Dispatcher::class)->dispatchNow($job);
     }
 }

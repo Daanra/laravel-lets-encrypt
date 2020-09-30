@@ -25,7 +25,7 @@ class LetsEncryptGenerateCommand extends Command
             $this->comment($domain  . ':');
 
             rescue(function () use ($domain) {
-                LetsEncrypt::create($domain);
+                LetsEncrypt::createNow($domain);
             }, function (Throwable $e) use ($domain) {
                 $this->error('Failed to generate a certificate for ' . $domain);
                 $this->error($e->getMessage());

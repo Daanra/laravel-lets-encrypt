@@ -24,6 +24,6 @@ class RegisterAccount implements ShouldQueue
     public function handle()
     {
         $client = LetsEncrypt::createClient();
-        $client->registerAccount(null, 'daanraatjes@gmail.com');
+        $client->registerAccount(null, $this->email);
     }
 }

@@ -9,11 +9,11 @@ return [
 
     // The path to the public ssl key used for connecting with the let's encrypt API.
     // A fresh key will be generated if it does not exist yet.
-    'public_key_path' => env('LETS_ENCRYPT_PUBLIC_KEY_PATH', storage_path('app/lets-encrypt/keys/account.pub.pem')),
+    'public_key_path' => env('LETS_ENCRYPT_PUBLIC_KEY_PATH', storage_path('app/letsencrypt/keys/account.pub.pem')),
 
     // The path to the private ssl key used for connecting with the let's encrypt API.
     // A fresh key will be generated if it does not exist yet.
-    'private_key_path' => env('LETS_ENCRYPT_PRIVATE_KEY_PATH', storage_path('app/lets-encrypt/keys/account.pem')),
+    'private_key_path' => env('LETS_ENCRYPT_PRIVATE_KEY_PATH', storage_path('app/letsencrypt/keys/account.pem')),
 
     // Universal email address, every certificate will be issued using this email address by default.
     // Only useful if you want to receive emails about expiring certificates

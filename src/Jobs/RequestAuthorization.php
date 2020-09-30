@@ -7,6 +7,7 @@ use Daanra\LaravelLetsEncrypt\Exceptions\FailedToMoveChallengeException;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -21,8 +22,12 @@ class RequestAuthorization implements ShouldQueue
     /** @var string */
     protected $domain;
 
+    /** @var bool */
+    protected $sync;
+
     public function __construct(string $domain)
     {
+        $this->sync = false;
         $this->domain = $domain;
     }
 
@@ -43,13 +48,28 @@ class RequestAuthorization implements ShouldQueue
         }
     }
 
-
     public function handle()
     {
         $client = LetsEncrypt::createClient();
         $challenges = $client->requestAuthorization($this->domain);
         $httpChallenge = $this->getHttpChallenge($challenges);
         $this->placeChallenge($httpChallenge);
-        ChallengeAuthorization::dispatch($httpChallenge);
+        if ($this->sync) {
+            ChallengeAuthorization::dispatchNow($httpChallenge);
+        } else {
+            ChallengeAuthorization::dispatch($httpChallenge);
+        }
+    }
+
+    protected function setSync(bool $sync)
+    {
+        $this->sync = $sync;
+    }
+
+    public static function dispatchNow(string $domain)
+    {
+        $job = new static($domain);
+        $job->setSync(true);
+        app(Dispatcher::class)->dispatchNow($job);
     }
 }

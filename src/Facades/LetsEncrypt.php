@@ -2,10 +2,14 @@
 
 namespace Daanra\LaravelLetsEncrypt\Facades;
 
+use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Facade;
 
 /**
  * @mixin \Daanra\LaravelLetsEncrypt\LetsEncrypt
+ * @method static PendingDispatch create(string $domain)
+ * @method static LetsEncryptCertificate createNow(string $domain)
  */
 class LetsEncrypt extends Facade
 {

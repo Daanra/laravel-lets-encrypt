@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Daanra\LaravelLetsEncrypt\Builders\LetsEncryptCertificateBuilder|\Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate whereDomain($value)
  * @method static bool|null forceDelete()
  * @method static bool|null restore()
+ * @method static static create(array $attributes)
  */
 class LetsEncryptCertificate extends Model
 {

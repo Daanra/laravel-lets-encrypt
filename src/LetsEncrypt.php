@@ -33,22 +33,73 @@ class LetsEncrypt
         $this->factory = $factory;
     }
 
+    /**
+     * Creates a new certificate. The heavy work is pushed on the queue.
+     * @param string $domain
+     * @return PendingDispatch
+     * @throws DomainAlreadyExists
+     * @throws InvalidDomainException
+     */
     public function create(string $domain): PendingDispatch
     {
-        if (Str::contains($domain, [':', '/', ','])) {
-            throw new InvalidDomainException($domain);
-        }
+        $this->validateDomain($domain);
+        $this->checkDomainDoesNotExist($domain);
 
-        if (LetsEncryptCertificate::withTrashed()->where('domain', $domain)->exists()) {
-            throw new DomainAlreadyExists($domain);
-        }
-
-        $email = config('lets_encrypt.universal_email_address', false);
+        $email = config('lets_encrypt.universal_email_address');
 
         return RegisterAccount::withChain([
             new RequestAuthorization($domain),
             new RequestCertificate($domain),
         ])->dispatch($email);
+    }
+
+    /**
+     * Creates a certificate synchronously: it's not pushed on the queue.
+     * This is not recommended in general, but can be useful if you're running it from the command
+     * line or when you're trying to debug.
+     * @param string $domain
+     * @return LetsEncryptCertificate
+     * @throws DomainAlreadyExists
+     * @throws InvalidDomainException
+     */
+    public function createNow(string $domain): LetsEncryptCertificate
+    {
+        $this->validateDomain($domain);
+        $this->checkDomainDoesNotExist($domain);
+
+        $email = config('lets_encrypt.universal_email_address');
+
+         RegisterAccount::dispatchNow($email);
+         RequestAuthorization::dispatchNow($domain);
+         RequestCertificate::dispatchNow($domain);
+
+         return LetsEncryptCertificate::create([
+             'domain' => $domain,
+         ]);
+    }
+
+    /**
+     * Checks mainly to prevent API errors when a user passes e.g. 'https://domain.com' as a domain. This should be
+     * 'domain.com' instead.
+     * @param string $domain
+     * @throws InvalidDomainException
+     */
+    public function validateDomain(string $domain): void
+    {
+        if (Str::contains($domain, [':', '/', ','])) {
+            throw new InvalidDomainException($domain);
+        }
+    }
+
+    /**
+     * @param string $domain
+     * @throws DomainAlreadyExists
+     */
+    public function checkDomainDoesNotExist(string $domain): void
+    {
+        if (LetsEncryptCertificate::withTrashed()->where('domain', $domain)->exists()) {
+            throw new DomainAlreadyExists($domain);
+        }
     }
 
     public function renew(string $domain): PendingDispatch
@@ -57,7 +108,7 @@ class LetsEncrypt
             throw new InvalidDomainException($domain);
         }
 
-        $email = config('lets_encrypt.universal_email_address', false);
+        $email = config('lets_encrypt.universal_email_address', null);
 
         return RegisterAccount::withChain([
             new RequestAuthorization($domain),
