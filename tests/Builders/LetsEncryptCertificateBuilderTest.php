@@ -12,7 +12,7 @@ class LetsEncryptCertificateBuilderTest extends TestCase
     {
         $expired = LetsEncryptCertificate::create([
             'domain' => 'test.com',
-            'last_renewed_at' => now()->subYear()
+            'last_renewed_at' => now()->subYear(),
         ]);
 
         $nonExisting = LetsEncryptCertificate::create([
