@@ -13,10 +13,10 @@ class RegisterAccount implements ShouldQueue
 {
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
-    /** @var string */
+    /** @var string|null */
     protected $email;
 
-    public function __construct(string $email)
+    public function __construct(string $email = null)
     {
         $this->email = $email;
     }
