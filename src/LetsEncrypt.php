@@ -16,7 +16,6 @@ use Daanra\LaravelLetsEncrypt\Jobs\RequestAuthorization;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Illuminate\Foundation\Bus\PendingDispatch;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -49,7 +48,7 @@ class LetsEncrypt
         return RegisterAccount::withChain([
             new RequestAuthorization($domain),
             new RequestCertificate($domain),
-        ])->dispatch();
+        ])->dispatch($email);
     }
 
     public function renew(string $domain): PendingDispatch
@@ -60,11 +59,10 @@ class LetsEncrypt
 
         $email = config('lets_encrypt.universal_email_address', false);
 
-        return Bus::chain([
-            new RegisterAccount($email),
+        return RegisterAccount::withChain([
             new RequestAuthorization($domain),
             new RequestCertificate($domain),
-        ])->dispatch();
+        ])->dispatch($email);
     }
 
     /**

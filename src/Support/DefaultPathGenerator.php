@@ -13,6 +13,6 @@ class DefaultPathGenerator implements PathGenerator
 
     public function getCertificatePath(string $domain, string $filename): string
     {
-        return '/etc/letsencrypt/live/' . $domain . '/' . $filename;
+        return 'letsencrypt/certificates/' . $domain . '/' . $filename;
     }
 }

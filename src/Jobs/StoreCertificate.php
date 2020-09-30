@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class StoreCertificate implements ShouldQueue
 {
@@ -68,8 +69,11 @@ class StoreCertificate implements ShouldQueue
     {
         $path = $generator->getCertificatePath($this->domain, $filename);
         $directory = File::dirname($path);
-        File::ensureDirectoryExists($directory);
-        if (File::put($path, $contents) === false) {
+        $fs = Storage::disk(config('lets_encrypt.certificate_disk'));
+        if (! $fs->exists($directory)) {
+            $fs->makeDirectory($directory);
+        }
+        if ($fs->put($path, $contents) === false) {
             throw new FailedToStoreCertificate($path);
         }
     }

@@ -30,6 +30,6 @@ class CleanUpChallenge implements ShouldQueue
     public function handle()
     {
         $generator = PathGeneratorFactory::create();
-        Storage::delete($generator->getChallengePath($this->challenge->getToken()));
+        Storage::disk(config('lets_encrypt.challenge_disk'))->delete($generator->getChallengePath($this->challenge->getToken()));
     }
 }

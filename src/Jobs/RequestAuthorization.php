@@ -36,7 +36,7 @@ class RequestAuthorization implements ShouldQueue
     protected function placeChallenge(AuthorizationChallenge $challenge): void
     {
         $path = PathGeneratorFactory::create()->getChallengePath($challenge->getToken());
-        $success = Storage::put($path, $challenge->getPayload());
+        $success = Storage::disk(config('lets_encrypt.challenge_disk'))->put($path, $challenge->getPayload());
 
         if ($success === false) {
             throw new FailedToMoveChallengeException($path);

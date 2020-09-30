@@ -20,4 +20,10 @@ return [
     'universal_email_address' => env('LETS_ENCRYPT_UNIVERSAL_EMAIL_ADDRESS', null),
 
     'path_generator' => DefaultPathGenerator::class,
+
+    // The disk to store the certificates on. Use null for the default disk.
+    'certificate_disk' => null,
+
+    // The disk to store store challenges on. Use null for the default disk.
+    'challenge_disk' => null,
 ];
