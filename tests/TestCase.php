@@ -28,6 +28,6 @@ class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
-        $this->loadLaravelMigrations();
+        // $this->loadLaravelMigrations();
     }
 }
