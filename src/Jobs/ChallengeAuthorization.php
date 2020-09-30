@@ -22,6 +22,12 @@ class ChallengeAuthorization implements ShouldQueue
         $this->challenge = $httpChallenge;
     }
 
+    /**
+     * Tells the LetsEncrypt API that our challenge is in place. LetsEncrypt will attempt to access
+     * the challenge on <domain>/.well-known/acme-challenges/<token>
+     * If this job succeeds, we can clean up the challenge and request a certificate.
+     * @throws \Daanra\LaravelLetsEncrypt\Exceptions\InvalidKeyPairConfiguration
+     */
     public function handle()
     {
         $client = LetsEncrypt::createClient();

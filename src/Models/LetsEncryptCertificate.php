@@ -3,12 +3,20 @@
 namespace Daanra\LaravelLetsEncrypt\Models;
 
 use Daanra\LaravelLetsEncrypt\Builders\LetsEncryptCertificateBuilder;
+use Daanra\LaravelLetsEncrypt\Collections\LetsEncryptCertificateCollection;
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Bus\PendingDispatch;
 
 /**
  * @property int $id
  * @property string $domain
+ * @property string|null $fullchain_path
+ * @property string|null $chain_path
+ * @property string|null $privkey_path
+ * @property string|null $cert_path
+ * @property bool $created
  * @property \Illuminate\Support\Carbon|null $last_renewed_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -32,13 +40,32 @@ class LetsEncryptCertificate extends Model
 
     protected $dates = ['last_renewed_at'];
 
+    protected $casts = [
+        'created' => 'boolean',
+    ];
+
     public function newEloquentBuilder($query): LetsEncryptCertificateBuilder
     {
         return new LetsEncryptCertificateBuilder($query);
     }
 
-    public function getHasExpiredAttribute()
+    public function newCollection(array $models = [])
+    {
+        return new LetsEncryptCertificateCollection($models);
+    }
+
+    public function getHasExpiredAttribute(): bool
     {
         return $this->last_renewed_at && $this->last_renewed_at->diffInDays(now()) >= 90;
+    }
+
+    public function renew(): PendingDispatch
+    {
+        return LetsEncrypt::renew($this->domain);
+    }
+
+    public function renewNow(): self
+    {
+        return LetsEncrypt::renewNow($this->domain);
     }
 }

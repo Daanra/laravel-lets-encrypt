@@ -7,6 +7,7 @@ use AcmePhp\Ssl\PrivateKey;
 use Daanra\LaravelLetsEncrypt\Contracts\PathGenerator;
 use Daanra\LaravelLetsEncrypt\Encoders\PemEncoder;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToStoreCertificate;
+use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,14 +24,14 @@ class StoreCertificate implements ShouldQueue
     /** @var Certificate */
     protected $certificate;
 
-    /** @var string */
-    protected $domain;
+    /** @var LetsEncryptCertificate */
+    protected $dbCertificate;
 
     protected $privateKey;
 
-    public function __construct(string $domain, Certificate $certificate, PrivateKey $privateKey)
+    public function __construct(LetsEncryptCertificate $dbCertificate, Certificate $certificate, PrivateKey $privateKey)
     {
-        $this->domain = $domain;
+        $this->dbCertificate = $dbCertificate;
         $this->certificate = $certificate;
         $this->privateKey = $privateKey;
     }
@@ -52,10 +53,13 @@ class StoreCertificate implements ShouldQueue
 
         $factory = PathGeneratorFactory::create();
 
-        $this->storeInPossiblyNonExistingDirectory($factory, 'cert.pem', $certPem);
-        $this->storeInPossiblyNonExistingDirectory($factory, 'chain.pem', $certPem);
-        $this->storeInPossiblyNonExistingDirectory($factory, 'fullchain.pem', $fullChainPem);
-        $this->storeInPossiblyNonExistingDirectory($factory, 'privkey.pem', $privkeyPem);
+        $this->storeInPossiblyNonExistingDirectory($factory, 'cert', $certPem);
+        $this->storeInPossiblyNonExistingDirectory($factory, 'chain', $certPem);
+        $this->storeInPossiblyNonExistingDirectory($factory, 'fullchain', $fullChainPem);
+        $this->storeInPossiblyNonExistingDirectory($factory, 'privkey', $privkeyPem);
+        $this->dbCertificate->last_renewed_at = now();
+        $this->dbCertificate->created = true;
+        $this->dbCertificate->save();
     }
 
     /**
@@ -67,12 +71,15 @@ class StoreCertificate implements ShouldQueue
      */
     protected function storeInPossiblyNonExistingDirectory(PathGenerator $generator, string $filename, string $contents): void
     {
-        $path = $generator->getCertificatePath($this->domain, $filename);
+        $path = $generator->getCertificatePath($this->dbCertificate->domain, $filename . '.pem');
         $directory = File::dirname($path);
         $fs = Storage::disk(config('lets_encrypt.certificate_disk'));
         if (! $fs->exists($directory)) {
             $fs->makeDirectory($directory);
         }
+
+        $this->dbCertificate{$filename . '_path'} = $path;
+
         if ($fs->put($path, $contents) === false) {
             throw new FailedToStoreCertificate($path);
         }

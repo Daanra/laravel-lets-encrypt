@@ -5,6 +5,7 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToMoveChallengeException;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
+use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -19,18 +20,24 @@ class RequestAuthorization implements ShouldQueue
 {
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
-    /** @var string */
-    protected $domain;
+    /** @var LetsEncryptCertificate */
+    protected $certificate;
 
     /** @var bool */
     protected $sync;
 
-    public function __construct(string $domain)
+    public function __construct(LetsEncryptCertificate $certificate)
     {
         $this->sync = false;
-        $this->domain = $domain;
+        $this->certificate = $certificate;
     }
 
+    /**
+     * Out of the array of challenges we have, we want to find the HTTP challenge, because that's the
+     * easiest one to solve in this scenario.
+     * @param AuthorizationChallenge[] $challenges
+     * @return AuthorizationChallenge
+     */
     protected function getHttpChallenge(array $challenges): AuthorizationChallenge
     {
         return collect($challenges)->first(function (AuthorizationChallenge $challenge): bool {
@@ -38,6 +45,11 @@ class RequestAuthorization implements ShouldQueue
         });
     }
 
+    /**
+     * Stores the HTTP-01 challenge at the appropriate place on disk.
+     * @param AuthorizationChallenge $challenge
+     * @throws FailedToMoveChallengeException
+     */
     protected function placeChallenge(AuthorizationChallenge $challenge): void
     {
         $path = PathGeneratorFactory::create()->getChallengePath($challenge->getToken());
@@ -51,7 +63,7 @@ class RequestAuthorization implements ShouldQueue
     public function handle()
     {
         $client = LetsEncrypt::createClient();
-        $challenges = $client->requestAuthorization($this->domain);
+        $challenges = $client->requestAuthorization($this->certificate->domain);
         $httpChallenge = $this->getHttpChallenge($challenges);
         $this->placeChallenge($httpChallenge);
         if ($this->sync) {
@@ -66,9 +78,9 @@ class RequestAuthorization implements ShouldQueue
         $this->sync = $sync;
     }
 
-    public static function dispatchNow(string $domain)
+    public static function dispatchNow(LetsEncryptCertificate $certificate)
     {
-        $job = new static($domain);
+        $job = new static($certificate);
         $job->setSync(true);
         app(Dispatcher::class)->dispatchNow($job);
     }

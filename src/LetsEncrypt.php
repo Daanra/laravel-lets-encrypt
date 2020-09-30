@@ -36,21 +36,25 @@ class LetsEncrypt
     /**
      * Creates a new certificate. The heavy work is pushed on the queue.
      * @param string $domain
-     * @return PendingDispatch
+     * @return array{LetsEncryptCertificate, PendingDispatch}
      * @throws DomainAlreadyExists
      * @throws InvalidDomainException
      */
-    public function create(string $domain): PendingDispatch
+    public function create(string $domain): array
     {
         $this->validateDomain($domain);
         $this->checkDomainDoesNotExist($domain);
 
         $email = config('lets_encrypt.universal_email_address');
 
-        return RegisterAccount::withChain([
-            new RequestAuthorization($domain),
-            new RequestCertificate($domain),
-        ])->dispatch($email);
+        $certificate = LetsEncryptCertificate::create([
+            'domain' => $domain,
+        ]);
+
+        return [$certificate, RegisterAccount::withChain([
+            new RequestAuthorization($certificate),
+            new RequestCertificate($certificate),
+        ])->dispatch($email)];
     }
 
     /**
@@ -69,13 +73,15 @@ class LetsEncrypt
 
         $email = config('lets_encrypt.universal_email_address');
 
-        RegisterAccount::dispatchNow($email);
-        RequestAuthorization::dispatchNow($domain);
-        RequestCertificate::dispatchNow($domain);
+        $certificate = LetsEncryptCertificate::create([
+            'domain' => $domain,
+        ]);
 
-        return LetsEncryptCertificate::create([
-             'domain' => $domain,
-         ]);
+        RegisterAccount::dispatchNow($email);
+        RequestAuthorization::dispatchNow($certificate);
+        RequestCertificate::dispatchNow($certificate);
+
+        return $certificate->refresh();
     }
 
     /**
@@ -102,10 +108,15 @@ class LetsEncrypt
         }
     }
 
-    public function renew(string $domain): PendingDispatch
+    /**
+     * @param string|LetsEncryptCertificate $domain
+     * @return PendingDispatch
+     * @throws InvalidDomainException
+     */
+    public function renew($domain): PendingDispatch
     {
-        if (Str::contains($domain, [':', '/', ','])) {
-            throw new InvalidDomainException($domain);
+        if (! $domain instanceof LetsEncryptCertificate) {
+            $domain = LetsEncryptCertificate::where('domain', $domain)->first();
         }
 
         $email = config('lets_encrypt.universal_email_address', null);
@@ -114,6 +125,26 @@ class LetsEncrypt
             new RequestAuthorization($domain),
             new RequestCertificate($domain),
         ])->dispatch($email);
+    }
+
+    /**
+     * @param string|LetsEncryptCertificate $domain
+     * @return LetsEncryptCertificate
+     * @throws InvalidDomainException
+     */
+    public function renewNow($domain): LetsEncryptCertificate
+    {
+        if (! $domain instanceof LetsEncryptCertificate) {
+            $domain = LetsEncryptCertificate::where('domain', $domain)->first();
+        }
+
+        $email = config('lets_encrypt.universal_email_address', null);
+
+        RegisterAccount::dispatchNow($email);
+        RequestAuthorization::dispatchNow($domain);
+        RequestCertificate::dispatchNow($domain);
+
+        return $domain;
     }
 
     /**

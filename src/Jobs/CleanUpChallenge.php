@@ -27,6 +27,10 @@ class CleanUpChallenge implements ShouldQueue
         $this->challenge = $httpChallenge;
     }
 
+    /**
+     * Cleans up the HTTP challenge by removing the file. Should be called right after the challenge was approved.
+     * @return void
+     */
     public function handle()
     {
         $generator = PathGeneratorFactory::create();
