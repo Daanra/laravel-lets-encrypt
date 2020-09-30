@@ -69,11 +69,11 @@ class LetsEncrypt
 
         $email = config('lets_encrypt.universal_email_address');
 
-         RegisterAccount::dispatchNow($email);
-         RequestAuthorization::dispatchNow($domain);
-         RequestCertificate::dispatchNow($domain);
+        RegisterAccount::dispatchNow($email);
+        RequestAuthorization::dispatchNow($domain);
+        RequestCertificate::dispatchNow($domain);
 
-         return LetsEncryptCertificate::create([
+        return LetsEncryptCertificate::create([
              'domain' => $domain,
          ]);
     }
