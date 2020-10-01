@@ -21,7 +21,7 @@ composer require daanra/laravel-lets-encrypt
 Publish the configuration file and the migration:
 
 ```bash
-php artisan vendor:publish --provider="Daanra\LaravelLetsEncrypt\LetsEncryptServiceProvider"
+php artisan vendor:publish --provider="Daanra\LaravelLetsEncrypt\LetsEncryptServiceProvider" --tag="lets-encrypt"
 ```
 
 Run the migration:
@@ -43,7 +43,7 @@ If you do not want to do this, you have to configure a custom path generator, se
 Creating a new SSL certificate for a specific domain is easy:
 ```php
 // Puts several jobs on the queue to handle the communication with the lets-encrypt server
-$pendingDispatch = Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com');
+[$certificate, $pendingDispatch] = Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com');
 
 // You could, for example, chain some jobs to enable a new virtual host
 // in Apache and send a notification once the website is available

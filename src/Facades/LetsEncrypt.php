@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @mixin \Daanra\LaravelLetsEncrypt\LetsEncrypt
- * @method static PendingDispatch create(string $domain)
+ * @method static array create(string $domain)
  * @method static LetsEncryptCertificate createNow(string $domain)
  * @method static LetsEncryptCertificate renewNow($domain)
  * @method static PendingDispatch renew($domain)
