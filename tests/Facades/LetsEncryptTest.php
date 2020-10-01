@@ -29,7 +29,7 @@ class LetsEncryptTest extends TestCase
     {
         Queue::fake();
 
-        [$certificate, $pendingDispatch] = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('someotherdomain.com');
+        [$certificate] = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('someotherdomain.com');
 
         $this->assertEquals('someotherdomain.com', $certificate->domain);
 
