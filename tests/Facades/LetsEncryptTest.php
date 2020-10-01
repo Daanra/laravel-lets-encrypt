@@ -2,6 +2,8 @@
 
 namespace Daanra\LaravelLetsEncrypt\Tests\Facades;
 
+use Daanra\LaravelLetsEncrypt\Exceptions\InvalidDomainException;
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Jobs\RegisterAccount;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestAuthorization;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestCertificate;
@@ -16,7 +18,8 @@ class LetsEncryptTest extends TestCase
     {
         Bus::fake();
 
-        \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('somedomain.com');
+        $certificate = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('somedomain.com');
+        $this->assertEquals('somedomain.com', $certificate->domain);
 
         Bus::assertDispatched(RegisterAccount::class);
     }
@@ -26,11 +29,29 @@ class LetsEncryptTest extends TestCase
     {
         Queue::fake();
 
-        \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('someotherdomain.com');
+        [$certificate, $pendingDispatch] = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('someotherdomain.com');
+
+        $this->assertEquals('someotherdomain.com', $certificate->domain);
 
         Queue::assertPushedWithChain(RegisterAccount::class, [
             RequestAuthorization::class,
             RequestCertificate::class,
         ]);
+    }
+
+    public function test_invalid_domain()
+    {
+        $this->expectException(InvalidDomainException::class);
+        LetsEncrypt::validateDomain('https://mydomain.com');
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function test_is_valid_domain()
+    {
+        LetsEncrypt::validateDomain('test-some-domain.company');
+        LetsEncrypt::validateDomain('google.com');
+        LetsEncrypt::validateDomain('test.test.test.dev');
     }
 }
