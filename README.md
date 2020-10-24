@@ -21,7 +21,7 @@ composer require daanra/laravel-lets-encrypt
 Publish the configuration file and the migration:
 
 ```bash
-php artisan vendor:publish --tag="lets-encrypt"
+php artisan vendor:publish --provider="Daanra\LaravelLetsEncrypt\LetsEncryptServiceProvider" --tag="lets-encrypt"
 ```
 
 Run the migration:
