@@ -36,11 +36,12 @@ class LetsEncrypt
     /**
      * Creates a new certificate. The heavy work is pushed on the queue.
      * @param string $domain
+     * @param array $chain
      * @return array{LetsEncryptCertificate, PendingDispatch}
      * @throws DomainAlreadyExists
      * @throws InvalidDomainException
      */
-    public function create(string $domain): array
+    public function create(string $domain, array $chain = []): array
     {
         $this->validateDomain($domain);
         $this->checkDomainDoesNotExist($domain);
@@ -51,10 +52,10 @@ class LetsEncrypt
             'domain' => $domain,
         ]);
 
-        return [$certificate, RegisterAccount::withChain([
+        return [$certificate, RegisterAccount::withChain(array_merge([
             new RequestAuthorization($certificate),
             new RequestCertificate($certificate),
-        ])->dispatch($email)];
+        ], $chain))->dispatch($email)];
     }
 
     /**
@@ -110,10 +111,11 @@ class LetsEncrypt
 
     /**
      * @param string|LetsEncryptCertificate $domain
+     * @param array $chain
      * @return PendingDispatch
      * @throws InvalidDomainException
      */
-    public function renew($domain): PendingDispatch
+    public function renew($domain, array $chain = []): PendingDispatch
     {
         if (! $domain instanceof LetsEncryptCertificate) {
             $domain = LetsEncryptCertificate::where('domain', $domain)->first();
@@ -121,10 +123,10 @@ class LetsEncrypt
 
         $email = config('lets_encrypt.universal_email_address', null);
 
-        return RegisterAccount::withChain([
+        return RegisterAccount::withChain(array_merge([
             new RequestAuthorization($domain),
             new RequestCertificate($domain),
-        ])->dispatch($email);
+        ], $chain))->dispatch($email);
     }
 
     /**
