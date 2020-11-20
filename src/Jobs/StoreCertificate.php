@@ -78,7 +78,7 @@ class StoreCertificate implements ShouldQueue
             $fs->makeDirectory($directory);
         }
 
-        $this->dbCertificate{$filename . '_path'} = $path;
+        $this->dbCertificate[$filename . '_path'] = $path;
 
         if ($fs->put($path, $contents) === false) {
             throw new FailedToStoreCertificate($path);
