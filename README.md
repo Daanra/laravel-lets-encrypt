@@ -43,18 +43,18 @@ If you do not want to do this, you have to configure a custom path generator, se
 Creating a new SSL certificate for a specific domain is easy:
 ```php
 // Puts several jobs on the queue to handle the communication with the lets-encrypt server
-[$certificate, $pendingDispatch] = Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com');
+[$certificate, $pendingDispatch] = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com');
 
 // You could, for example, chain some jobs to enable a new virtual host
 // in Apache and send a notification once the website is available
-[$certificate, $pendingDispatch] = Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com', [
+[$certificate, $pendingDispatch] = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('mydomain.com', [
     new CreateNewApacheVirtualHost('mydomain.com'), 
     new ReloadApache(),
     new NotifyUserOfNewCertificate(request()->user()),
 ]);
 
 // You can also do it synchronously:
-Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('mydomain.com');
+\Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('mydomain.com');
 ```
 
 You could also achieve the same by using an artisan command:
@@ -65,13 +65,13 @@ php artisan lets-encrypt:create -d mydomain.com
 Certificates are stored in the database. You can query them like so:
 ```php
 // All certificates
-Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::all();
+\Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::all();
 // All expired certificates
-Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::query()->expired()->get();
+\Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::query()->expired()->get();
 // All currently valid certificates
-Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::query()->valid()->get();
+\Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::query()->valid()->get();
 // All certificates that should be renewed (because they're more than 60 days old)
-Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::query()->requiresRenewal()->get();
+\Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate::query()->requiresRenewal()->get();
 
 // Find certificate by domain
 $certificate = LetsEncryptCertificate::where('domain', 'mydomain.com')->first();
@@ -86,7 +86,7 @@ could add the following to your `App\Console\Kernel`:
 ```php
 protected function schedule(Schedule $schedule)
 {
-    $schedule->job(new Daanra\LaravelLetsEncrypt\Jobs\RenewExpiringCertificates)->daily();
+    $schedule->job(new \Daanra\LaravelLetsEncrypt\Jobs\RenewExpiringCertificates)->daily();
 }
 ```
 
