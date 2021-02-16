@@ -61,11 +61,11 @@ class LetsEncryptCertificate extends Model
 
     public function renew(): PendingDispatch
     {
-        return LetsEncrypt::renew($this->domain);
+        return LetsEncrypt::renew($this);
     }
 
     public function renewNow(): self
     {
-        return LetsEncrypt::renewNow($this->domain);
+        return LetsEncrypt::renewNow($this);
     }
 }
