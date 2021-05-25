@@ -112,10 +112,10 @@ class LetsEncrypt
     /**
      * @param string|LetsEncryptCertificate $domain
      * @param array $chain
-     * @return PendingDispatch
+     * @return mixed
      * @throws InvalidDomainException
      */
-    public function renew($domain, array $chain = []): PendingDispatch
+    public function renew($domain, array $chain = [])
     {
         if (! $domain instanceof LetsEncryptCertificate) {
             $domain = LetsEncryptCertificate::where('domain', $domain)->first();
