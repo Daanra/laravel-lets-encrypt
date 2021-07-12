@@ -31,12 +31,12 @@ php artisan migrate
 
 **Note:**
 
-This package assumes you have created a symbolic link to your storage directory using:
-```bash
-php artisan storage:link
+You somehow have to return a stored challenge whenever it it retrieved from the `/.well-known/acme-challenge` endpoint. You could do this by configuring NGINX/Apache appropriately or by registering a route:
+```php
+Route::get('/.well-known/acme-challenge/{token}', function (string $token) {
+    return \Illuminate\Support\Facades\Storage::get('public/.well-known/acme-challenge/' . $token);
+})
 ```
-
-If you do not want to do this, you have to configure a custom path generator, see the Configuration section below.
 
 ## Usage
 
