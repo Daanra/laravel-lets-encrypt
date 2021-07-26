@@ -59,7 +59,7 @@ class LetsEncryptCertificate extends Model
         return $this->last_renewed_at && $this->last_renewed_at->diffInDays(now()) >= 90;
     }
 
-    public function renew(): PendingDispatch
+    public function renew()
     {
         return LetsEncrypt::renew($this);
     }
