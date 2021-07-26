@@ -7,7 +7,6 @@ use Daanra\LaravelLetsEncrypt\Collections\LetsEncryptCertificateCollection;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Bus\PendingDispatch;
 
 /**
  * @property int $id
