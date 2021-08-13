@@ -38,7 +38,7 @@ Route::get('/.well-known/acme-challenge/{token}', function (string $token) {
 })
 ```
 
-Sometimes the `/.well-known/` prefix is disabled by default in the NGINX/Apache config. Make sure it is forwarded to your Laravel application if you want Laravel to return the challenge.
+Sometimes the `/.well-known/` prefix is disabled by default in the NGINX/Apache config (see [#4](https://github.com/Daanra/laravel-lets-encrypt/issues/4)). Make sure it is forwarded to your Laravel application if you want Laravel to return the challenge.
 
 
 ## Usage
