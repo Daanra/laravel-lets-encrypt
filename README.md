@@ -60,6 +60,34 @@ Creating a new SSL certificate for a specific domain is easy:
 \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('mydomain.com');
 ```
 
+Alternative syntax:
+
+```
+LetsEncrypt::certificate('mydomain.com')
+            ->setChain([])
+            ->setTries(4)
+            ->setRetryAfter(4)
+            ->setRetryList([1, 5, 10])
+            ->setDelay(5)
+            ->create();
+            
+LetsEncrypt::certificate('mydomain.com')
+            ->setChain([])
+            ->setTries(4)
+            ->setRetryAfter(4)
+            ->setRetryList([1, 5, 10])
+            ->setDelay(5)
+            ->renew();
+```
+
+Where you can specify values for all jobs:
+
+- tries (The number of times the job may be attempted)
+- retryAfter (The number of seconds to wait before retrying the job)
+- retryList (The list of seconds to wait before retrying the job)
+- chain (Chain some jobs)
+- delay (Set the desired delay for the job)
+
 You could also achieve the same by using an artisan command:
 ```bash
 php artisan lets-encrypt:create -d mydomain.com
@@ -82,6 +110,18 @@ $certificate = LetsEncryptCertificate::where('domain', 'mydomain.com')->first();
 $certificate->delete();
 // Or use a hard delete
 $certificate->forceDelete();
+```
+
+Each job has the following events available that you can track in your application:
+
+```
+Daanra\LaravelLetsEncrypt\Events\CleanUpChallengeFailed
+Daanra\LaravelLetsEncrypt\Events\ChallengeAuthorizationFailed
+Daanra\LaravelLetsEncrypt\Events\RegisterAccountFailed
+Daanra\LaravelLetsEncrypt\Events\RequestAuthorizationFailed
+Daanra\LaravelLetsEncrypt\Events\RequestCertificateFailed
+Daanra\LaravelLetsEncrypt\Events\StoreCertificateFailed
+Daanra\LaravelLetsEncrypt\Events\RenewExpiringCertificatesFailed
 ```
 
 Certificates are valid for 90 days. Before those 90 days are over, you will want to renew them. To do so, you

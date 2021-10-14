@@ -7,6 +7,7 @@ use Daanra\LaravelLetsEncrypt\Exceptions\FailedToMoveChallengeException;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
+use Daanra\LaravelLetsEncrypt\Events\RequestAuthorizationFailed;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -26,10 +27,35 @@ class RequestAuthorization implements ShouldQueue
     /** @var bool */
     protected $sync;
 
-    public function __construct(LetsEncryptCertificate $certificate)
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var int
+     */
+    public $retryAfter;
+
+    /**
+     * The list of seconds to wait before retrying the job.
+     *
+     * @var array
+     */
+    public $retryList;
+
+
+    public function __construct(LetsEncryptCertificate $certificate, int $tries = null, int $retryAfter = null, $retryList = [])
     {
         $this->sync = false;
         $this->certificate = $certificate;
+        $this->tries = $tries;
+        $this->retryAfter = $retryAfter;
+        $this->retryList = $retryList;
     }
 
     /**
@@ -66,10 +92,11 @@ class RequestAuthorization implements ShouldQueue
         $challenges = $client->requestAuthorization($this->certificate->domain);
         $httpChallenge = $this->getHttpChallenge($challenges);
         $this->placeChallenge($httpChallenge);
+
         if ($this->sync) {
-            ChallengeAuthorization::dispatchNow($httpChallenge);
+            ChallengeAuthorization::dispatchNow($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
         } else {
-            ChallengeAuthorization::dispatch($httpChallenge);
+            ChallengeAuthorization::dispatch($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
         }
     }
 
@@ -83,5 +110,25 @@ class RequestAuthorization implements ShouldQueue
         $job = new static($certificate);
         $job->setSync(true);
         app(Dispatcher::class)->dispatchNow($job);
+    }
+
+    /**
+     * Calculate the number of seconds to wait before retrying the job.
+     *
+     * @return int
+     */
+    public function retryAfter()
+    {
+        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @return void
+     */
+    public function failed()
+    {
+        event(new RequestAuthorizationFailed($this));
     }
 }

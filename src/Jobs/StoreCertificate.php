@@ -9,6 +9,7 @@ use Daanra\LaravelLetsEncrypt\Encoders\PemEncoder;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToStoreCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
+use Daanra\LaravelLetsEncrypt\Events\StoreCertificateFailed;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,19 +22,51 @@ class StoreCertificate implements ShouldQueue
 {
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
-    /** @var Certificate */
+    /**
+     * @var Certificate
+     */
     protected $certificate;
 
-    /** @var LetsEncryptCertificate */
+    /**
+     * @var LetsEncryptCertificate
+     */
     protected $dbCertificate;
 
+    /**
+     * @var PrivateKey
+     */
     protected $privateKey;
 
-    public function __construct(LetsEncryptCertificate $dbCertificate, Certificate $certificate, PrivateKey $privateKey)
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var int
+     */
+    public $retryAfter;
+
+    /**
+     * The list of seconds to wait before retrying the job.
+     *
+     * @var array
+     */
+    public $retryList;
+
+
+    public function __construct(LetsEncryptCertificate $dbCertificate, Certificate $certificate, PrivateKey $privateKey, int $tries = null, int $retryAfter = null, $retryList = [])
     {
         $this->dbCertificate = $dbCertificate;
         $this->certificate = $certificate;
         $this->privateKey = $privateKey;
+        $this->tries = $tries;
+        $this->retryAfter = $retryAfter;
+        $this->retryList = $retryList;
     }
 
     /**
@@ -83,5 +116,25 @@ class StoreCertificate implements ShouldQueue
         if ($fs->put($path, $contents) === false) {
             throw new FailedToStoreCertificate($path);
         }
+    }
+
+    /**
+     * Calculate the number of seconds to wait before retrying the job.
+     *
+     * @return int
+     */
+    public function retryAfter()
+    {
+        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @return void
+     */
+    public function failed()
+    {
+        event(new StoreCertificateFailed($this));
     }
 }

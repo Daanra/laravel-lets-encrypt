@@ -3,6 +3,7 @@
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
+use Daanra\LaravelLetsEncrypt\Events\ChallengeAuthorizationFailed;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,12 +15,39 @@ class ChallengeAuthorization implements ShouldQueue
 {
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
-    /** @var AuthorizationChallenge */
+    /**
+     * @var AuthorizationChallenge
+     */
     protected $challenge;
 
-    public function __construct(AuthorizationChallenge $httpChallenge)
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var int
+     */
+    public $retryAfter;
+
+    /**
+     * The list of seconds to wait before retrying the job.
+     *
+     * @var array
+     */
+    public $retryList;
+
+
+    public function __construct(AuthorizationChallenge $httpChallenge, int $tries = null, int $retryAfter = null, $retryList = [])
     {
         $this->challenge = $httpChallenge;
+        $this->tries = $tries;
+        $this->retryAfter = $retryAfter;
+        $this->retryList = $retryList;
     }
 
     /**
@@ -32,6 +60,26 @@ class ChallengeAuthorization implements ShouldQueue
     {
         $client = LetsEncrypt::createClient();
         $client->challengeAuthorization($this->challenge);
-        CleanUpChallenge::dispatch($this->challenge);
+        CleanUpChallenge::dispatch($this->challenge, $this->tries, $this->retryAfter, $this->retryList);
+    }
+
+    /**
+     * Calculate the number of seconds to wait before retrying the job.
+     *
+     * @return int
+     */
+    public function retryAfter()
+    {
+        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @return void
+     */
+    public function failed()
+    {
+        event(new ChallengeAuthorizationFailed($this));
     }
 }

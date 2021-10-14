@@ -25,12 +25,18 @@ class LetsEncrypt
     protected $factory;
 
     /**
+     * @var LetsEncrypt
+     */
+    private static $instance;
+
+    /**
      * LetsEncrypt constructor.
      * @param SecureHttpClientFactory $factory
      */
     public function __construct(SecureHttpClientFactory $factory)
     {
         $this->factory = $factory;
+        self::$instance = $this;
     }
 
     /**
@@ -41,10 +47,10 @@ class LetsEncrypt
      * @throws DomainAlreadyExists
      * @throws InvalidDomainException
      */
-    public function create(string $domain, array $chain = []): array
+    public static function create(string $domain, array $chain = []): array
     {
-        $this->validateDomain($domain);
-        $this->checkDomainDoesNotExist($domain);
+        self::validateDomain($domain);
+        self::checkDomainDoesNotExist($domain);
 
         $email = config('lets_encrypt.universal_email_address');
 
@@ -67,10 +73,10 @@ class LetsEncrypt
      * @throws DomainAlreadyExists
      * @throws InvalidDomainException
      */
-    public function createNow(string $domain): LetsEncryptCertificate
+    public static function createNow(string $domain): LetsEncryptCertificate
     {
-        $this->validateDomain($domain);
-        $this->checkDomainDoesNotExist($domain);
+        self::validateDomain($domain);
+        self::checkDomainDoesNotExist($domain);
 
         $email = config('lets_encrypt.universal_email_address');
 
@@ -91,7 +97,7 @@ class LetsEncrypt
      * @param string $domain
      * @throws InvalidDomainException
      */
-    public function validateDomain(string $domain): void
+    public static function validateDomain(string $domain): void
     {
         if (Str::contains($domain, [':', '/', ','])) {
             throw new InvalidDomainException($domain);
@@ -102,7 +108,7 @@ class LetsEncrypt
      * @param string $domain
      * @throws DomainAlreadyExists
      */
-    public function checkDomainDoesNotExist(string $domain): void
+    public static function checkDomainDoesNotExist(string $domain): void
     {
         if (LetsEncryptCertificate::withTrashed()->where('domain', $domain)->exists()) {
             throw new DomainAlreadyExists($domain);
@@ -115,7 +121,7 @@ class LetsEncrypt
      * @return mixed
      * @throws InvalidDomainException
      */
-    public function renew($domain, array $chain = [])
+    public static function renew($domain, array $chain = [])
     {
         if (! $domain instanceof LetsEncryptCertificate) {
             $domain = LetsEncryptCertificate::where('domain', $domain)->first();
@@ -134,7 +140,7 @@ class LetsEncrypt
      * @return LetsEncryptCertificate
      * @throws InvalidDomainException
      */
-    public function renewNow($domain): LetsEncryptCertificate
+    public static function renewNow($domain): LetsEncryptCertificate
     {
         if (! $domain instanceof LetsEncryptCertificate) {
             $domain = LetsEncryptCertificate::where('domain', $domain)->first();
@@ -153,10 +159,10 @@ class LetsEncrypt
      * @return AcmeClient
      * @throws InvalidKeyPairConfiguration
      */
-    public function createClient(): AcmeClient
+    public static function createClient(): AcmeClient
     {
-        $keyPair = $this->getKeyPair();
-        $secureHttpClient = $this->factory->createSecureHttpClient($keyPair);
+        $keyPair = self::getKeyPair();
+        $secureHttpClient = self::$instance->factory->createSecureHttpClient($keyPair);
 
         return new AcmeClient(
             $secureHttpClient,
@@ -169,7 +175,7 @@ class LetsEncrypt
      * @return KeyPair
      * @throws InvalidKeyPairConfiguration
      */
-    protected function getKeyPair(): KeyPair
+    protected static function getKeyPair(): KeyPair
     {
         $publicKeyPath = config('lets_encrypt.public_key_path', storage_path('app/lets-encrypt/keys/account.pub.pem'));
         $privateKeyPath = config('lets_encrypt.private_key_path', storage_path('app/lets-encrypt/keys/account.pem'));
@@ -199,5 +205,14 @@ class LetsEncrypt
         $privateKey = new PrivateKey(file_get_contents($privateKeyPath));
 
         return new KeyPair($publicKey, $privateKey);
+    }
+
+    /**
+     * @param string $domain
+     * @return PendingCertificate
+     */
+    public static function certificate(string $domain): PendingCertificate
+    {
+        return new PendingCertificate($domain);
     }
 }
