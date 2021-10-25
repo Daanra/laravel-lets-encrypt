@@ -10,6 +10,7 @@ use Daanra\LaravelLetsEncrypt\Exceptions\FailedToStoreCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
 use Daanra\LaravelLetsEncrypt\Events\StoreCertificateFailed;
+use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StoreCertificate implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
 
     /**
      * @var Certificate
@@ -36,27 +37,6 @@ class StoreCertificate implements ShouldQueue
      * @var PrivateKey
      */
     protected $privateKey;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries;
-
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var int
-     */
-    public $retryAfter;
-
-    /**
-     * The list of seconds to wait before retrying the job.
-     *
-     * @var array
-     */
-    public $retryList;
 
 
     public function __construct(LetsEncryptCertificate $dbCertificate, Certificate $certificate, PrivateKey $privateKey, int $tries = null, int $retryAfter = null, $retryList = [])
@@ -116,16 +96,6 @@ class StoreCertificate implements ShouldQueue
         if ($fs->put($path, $contents) === false) {
             throw new FailedToStoreCertificate($path);
         }
-    }
-
-    /**
-     * Calculate the number of seconds to wait before retrying the job.
-     *
-     * @return int
-     */
-    public function retryAfter()
-    {
-        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }
 
     /**

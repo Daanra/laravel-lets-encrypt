@@ -6,6 +6,7 @@ use AcmePhp\Core\AcmeClient;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Events\CleanUpChallengeFailed;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
+use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,35 +16,13 @@ use Illuminate\Support\Facades\Storage;
 
 class CleanUpChallenge implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
 
     /** @var AuthorizationChallenge */
     protected $challenge;
 
     /** @var AcmeClient */
     protected $client;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries;
-
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var int
-     */
-    public $retryAfter;
-
-    /**
-     * The list of seconds to wait before retrying the job.
-     *
-     * @var array
-     */
-    public $retryList;
-
 
     public function __construct(AuthorizationChallenge $httpChallenge, int $tries = null, int $retryAfter = null, $retryList = [])
     {
@@ -61,16 +40,6 @@ class CleanUpChallenge implements ShouldQueue
     {
         $generator = PathGeneratorFactory::create();
         Storage::disk(config('lets_encrypt.challenge_disk'))->delete($generator->getChallengePath($this->challenge->getToken()));
-    }
-
-    /**
-     * Calculate the number of seconds to wait before retrying the job.
-     *
-     * @return int
-     */
-    public function retryAfter()
-    {
-        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }
 
     /**

@@ -55,26 +55,4 @@ class LetsEncryptTest extends TestCase
         LetsEncrypt::validateDomain('test.test.test.dev');
     }
 
-    public function test_can_create_api()
-    {
-        LetsEncrypt::certificate('mydomain-new.com')
-            ->setChain([])
-            ->setTries(4)
-            ->setRetryAfter(4)
-            ->setRetryList([1, 5, 10])
-            ->setDelay(5)
-            ->create();
-    }
-
-    public function test_can_renew_api()
-    {
-        LetsEncrypt::certificate('mydomain-new.com')
-            ->setChain([])
-            ->setTries(4)
-            ->setRetryAfter(4)
-            ->setRetryList([1, 5, 10])
-            ->setDelay(5)
-            ->renew();
-    }
-
 }

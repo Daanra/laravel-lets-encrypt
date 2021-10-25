@@ -8,6 +8,7 @@ use AcmePhp\Ssl\Generator\KeyPairGenerator;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Events\RequestCertificateFailed;
+use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,34 +18,13 @@ use Illuminate\Queue\SerializesModels;
 
 class RequestCertificate implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
 
     /** @var LetsEncryptCertificate */
     protected $certificate;
 
     /** @var bool */
     protected $sync;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries;
-
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var int
-     */
-    public $retryAfter;
-
-    /**
-     * The list of seconds to wait before retrying the job.
-     *
-     * @var array
-     */
-    public $retryList;
 
 
     public function __construct(LetsEncryptCertificate $certificate, int $tries = null, int $retryAfter = null, $retryList = [])
@@ -82,16 +62,6 @@ class RequestCertificate implements ShouldQueue
         $job = new static($certificate);
         $job->setSync(true);
         app(Dispatcher::class)->dispatchNow($job);
-    }
-
-    /**
-     * Calculate the number of seconds to wait before retrying the job.
-     *
-     * @return int
-     */
-    public function retryAfter()
-    {
-        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }
 
     /**

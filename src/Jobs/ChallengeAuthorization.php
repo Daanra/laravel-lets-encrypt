@@ -5,6 +5,7 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Events\ChallengeAuthorizationFailed;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
+use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,33 +14,12 @@ use Illuminate\Queue\SerializesModels;
 
 class ChallengeAuthorization implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
 
     /**
      * @var AuthorizationChallenge
      */
     protected $challenge;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries;
-
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var int
-     */
-    public $retryAfter;
-
-    /**
-     * The list of seconds to wait before retrying the job.
-     *
-     * @var array
-     */
-    public $retryList;
 
 
     public function __construct(AuthorizationChallenge $httpChallenge, int $tries = null, int $retryAfter = null, $retryList = [])
@@ -61,16 +41,6 @@ class ChallengeAuthorization implements ShouldQueue
         $client = LetsEncrypt::createClient();
         $client->challengeAuthorization($this->challenge);
         CleanUpChallenge::dispatch($this->challenge, $this->tries, $this->retryAfter, $this->retryList);
-    }
-
-    /**
-     * Calculate the number of seconds to wait before retrying the job.
-     *
-     * @return int
-     */
-    public function retryAfter()
-    {
-        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }
 
     /**

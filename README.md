@@ -124,6 +124,13 @@ Daanra\LaravelLetsEncrypt\Events\StoreCertificateFailed
 Daanra\LaravelLetsEncrypt\Events\RenewExpiringCertificatesFailed
 ```
 
+Either use a single listener:
+
+```
+Daanra\LaravelLetsEncrypt\Interfaces\NotifiableEvent;
+```
+
+
 Certificates are valid for 90 days. Before those 90 days are over, you will want to renew them. To do so, you
 could add the following to your `App\Console\Kernel`:
 ```php

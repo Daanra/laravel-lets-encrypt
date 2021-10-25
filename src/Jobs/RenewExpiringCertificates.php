@@ -5,6 +5,7 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 use Daanra\LaravelLetsEncrypt\Collections\LetsEncryptCertificateCollection;
 use Daanra\LaravelLetsEncrypt\Events\RenewExpiringCertificatesFailed;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
+use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,29 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 class RenewExpiringCertificates implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries;
-
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var int
-     */
-    public $retryAfter;
-
-    /**
-     * The list of seconds to wait before retrying the job.
-     *
-     * @var array
-     */
-    public $retryList;
-
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
 
     public function __construct(int $tries = null, int $retryAfter = null, $retryList = [])
     {
@@ -51,16 +30,6 @@ class RenewExpiringCertificates implements ShouldQueue
             ->chunk(100, function (LetsEncryptCertificateCollection $certificates) {
                 $certificates->renew();
             });
-    }
-
-    /**
-     * Calculate the number of seconds to wait before retrying the job.
-     *
-     * @return int
-     */
-    public function retryAfter()
-    {
-        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }
 
     /**
