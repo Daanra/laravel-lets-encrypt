@@ -9,6 +9,8 @@ use Daanra\LaravelLetsEncrypt\Encoders\PemEncoder;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToStoreCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
+use Daanra\LaravelLetsEncrypt\Events\StoreCertificateFailed;
+use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,21 +21,32 @@ use Illuminate\Support\Facades\Storage;
 
 class StoreCertificate implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
 
-    /** @var Certificate */
+    /**
+     * @var Certificate
+     */
     protected $certificate;
 
-    /** @var LetsEncryptCertificate */
+    /**
+     * @var LetsEncryptCertificate
+     */
     protected $dbCertificate;
 
+    /**
+     * @var PrivateKey
+     */
     protected $privateKey;
 
-    public function __construct(LetsEncryptCertificate $dbCertificate, Certificate $certificate, PrivateKey $privateKey)
+
+    public function __construct(LetsEncryptCertificate $dbCertificate, Certificate $certificate, PrivateKey $privateKey, int $tries = null, int $retryAfter = null, $retryList = [])
     {
         $this->dbCertificate = $dbCertificate;
         $this->certificate = $certificate;
         $this->privateKey = $privateKey;
+        $this->tries = $tries;
+        $this->retryAfter = $retryAfter;
+        $this->retryList = $retryList;
     }
 
     /**
@@ -83,5 +96,15 @@ class StoreCertificate implements ShouldQueue
         if ($fs->put($path, $contents) === false) {
             throw new FailedToStoreCertificate($path);
         }
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @return void
+     */
+    public function failed()
+    {
+        event(new StoreCertificateFailed($this));
     }
 }

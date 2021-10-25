@@ -18,7 +18,7 @@ class LetsEncryptTest extends TestCase
     {
         Bus::fake();
 
-        $certificate = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('somedomain.com');
+        $certificate = LetsEncrypt::createNow('somedomain.com');
         $this->assertEquals('somedomain.com', $certificate->domain);
 
         Bus::assertDispatched(RegisterAccount::class);
@@ -29,7 +29,7 @@ class LetsEncryptTest extends TestCase
     {
         Queue::fake();
 
-        [$certificate] = \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::create('someotherdomain.com');
+        [$certificate] = LetsEncrypt::create('someotherdomain.com');
 
         $this->assertEquals('someotherdomain.com', $certificate->domain);
 
@@ -54,4 +54,5 @@ class LetsEncryptTest extends TestCase
         LetsEncrypt::validateDomain('google.com');
         LetsEncrypt::validateDomain('test.test.test.dev');
     }
+
 }
