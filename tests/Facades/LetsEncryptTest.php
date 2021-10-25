@@ -54,5 +54,4 @@ class LetsEncryptTest extends TestCase
         LetsEncrypt::validateDomain('google.com');
         LetsEncrypt::validateDomain('test.test.test.dev');
     }
-
 }

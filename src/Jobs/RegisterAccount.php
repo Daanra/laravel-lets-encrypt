@@ -2,8 +2,8 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Events\RegisterAccountFailed;
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -9,7 +9,6 @@ use Daanra\LaravelLetsEncrypt\Jobs\RequestAuthorization;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Illuminate\Foundation\Bus\PendingDispatch;
-use Illuminate\Support\Str;
 
 class PendingCertificate
 {
@@ -86,7 +85,7 @@ class PendingCertificate
                 ),
             ], $this->chain))
                 ->dispatch($email, $this->tries, $this->retryAfter, $this->retryList)
-                ->delay($this->delay)
+                ->delay($this->delay),
         ];
     }
 

@@ -3,11 +3,11 @@
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
+use Daanra\LaravelLetsEncrypt\Events\RequestAuthorizationFailed;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToMoveChallengeException;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
-use Daanra\LaravelLetsEncrypt\Events\RequestAuthorizationFailed;
 use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;

@@ -33,6 +33,6 @@ trait JobTrait
      */
     public function retryAfter()
     {
-        return (!empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
+        return (! empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }
 }
