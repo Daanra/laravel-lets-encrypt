@@ -8,7 +8,7 @@ use AcmePhp\Ssl\Generator\KeyPairGenerator;
 use Daanra\LaravelLetsEncrypt\Events\RequestCertificateFailed;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
-use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
 
 class RequestCertificate implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     /** @var LetsEncryptCertificate */
     protected $certificate;
@@ -69,8 +69,8 @@ class RequestCertificate implements ShouldQueue
      *
      * @return void
      */
-    public function failed()
+    public function failed(\Throwable $exception)
     {
-        event(new RequestCertificateFailed($this));
+        event(new RequestCertificateFailed($exception, $this->certificate));
     }
 }

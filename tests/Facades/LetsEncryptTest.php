@@ -7,6 +7,7 @@ use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Jobs\RegisterAccount;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestAuthorization;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestCertificate;
+use Daanra\LaravelLetsEncrypt\PendingCertificate;
 use Daanra\LaravelLetsEncrypt\Tests\TestCase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
@@ -53,5 +54,25 @@ class LetsEncryptTest extends TestCase
         LetsEncrypt::validateDomain('test-some-domain.company');
         LetsEncrypt::validateDomain('google.com');
         LetsEncrypt::validateDomain('test.test.test.dev');
+    }
+
+    public function test_pending_certificate()
+    {
+        $pending = LetsEncrypt::certificate('test.dev');
+        $this->assertInstanceOf(PendingCertificate::class, $pending);
+    }
+
+    public function test_can_create_pending()
+    {
+        Queue::fake();
+
+        $certificate = LetsEncrypt::certificate('test.test')->create();
+
+        $this->assertEquals('someotherdomain.com', $certificate->domain);
+
+        Queue::assertPushedWithChain(RegisterAccount::class, [
+            RequestAuthorization::class,
+            RequestCertificate::class,
+        ]);
     }
 }

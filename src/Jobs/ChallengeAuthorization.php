@@ -5,7 +5,7 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Events\ChallengeAuthorizationFailed;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
-use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ChallengeAuthorization implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     /**
      * @var AuthorizationChallenge
@@ -22,7 +22,7 @@ class ChallengeAuthorization implements ShouldQueue
     protected $challenge;
 
 
-    public function __construct(AuthorizationChallenge $httpChallenge, int $tries = null, int $retryAfter = null, $retryList = [])
+    public function __construct(AuthorizationChallenge $httpChallenge, int $tries = null, int $retryAfter = null, array $retryList = [])
     {
         $this->challenge = $httpChallenge;
         $this->tries = $tries;
@@ -48,8 +48,8 @@ class ChallengeAuthorization implements ShouldQueue
      *
      * @return void
      */
-    public function failed()
+    public function failed(\Throwable $exception)
     {
-        event(new ChallengeAuthorizationFailed($this));
+        event(new ChallengeAuthorizationFailed($exception));
     }
 }

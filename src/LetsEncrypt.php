@@ -47,7 +47,7 @@ class LetsEncrypt
      * @throws DomainAlreadyExists
      * @throws InvalidDomainException
      */
-    public static function create(string $domain, array $chain = []): array
+    public function create(string $domain, array $chain = []): array
     {
         self::validateDomain($domain);
         self::checkDomainDoesNotExist($domain);
@@ -73,7 +73,7 @@ class LetsEncrypt
      * @throws DomainAlreadyExists
      * @throws InvalidDomainException
      */
-    public static function createNow(string $domain): LetsEncryptCertificate
+    public function createNow(string $domain): LetsEncryptCertificate
     {
         self::validateDomain($domain);
         self::checkDomainDoesNotExist($domain);
@@ -97,7 +97,7 @@ class LetsEncrypt
      * @param string $domain
      * @throws InvalidDomainException
      */
-    public static function validateDomain(string $domain): void
+    public function validateDomain(string $domain): void
     {
         if (Str::contains($domain, [':', '/', ','])) {
             throw new InvalidDomainException($domain);
@@ -108,7 +108,7 @@ class LetsEncrypt
      * @param string $domain
      * @throws DomainAlreadyExists
      */
-    public static function checkDomainDoesNotExist(string $domain): void
+    public function checkDomainDoesNotExist(string $domain): void
     {
         if (LetsEncryptCertificate::withTrashed()->where('domain', $domain)->exists()) {
             throw new DomainAlreadyExists($domain);
@@ -121,7 +121,7 @@ class LetsEncrypt
      * @return mixed
      * @throws InvalidDomainException
      */
-    public static function renew($domain, array $chain = [])
+    public function renew($domain, array $chain = [])
     {
         if (! $domain instanceof LetsEncryptCertificate) {
             $domain = LetsEncryptCertificate::where('domain', $domain)->first();
@@ -140,7 +140,7 @@ class LetsEncrypt
      * @return LetsEncryptCertificate
      * @throws InvalidDomainException
      */
-    public static function renewNow($domain): LetsEncryptCertificate
+    public function renewNow($domain): LetsEncryptCertificate
     {
         if (! $domain instanceof LetsEncryptCertificate) {
             $domain = LetsEncryptCertificate::where('domain', $domain)->first();
@@ -159,7 +159,7 @@ class LetsEncrypt
      * @return AcmeClient
      * @throws InvalidKeyPairConfiguration
      */
-    public static function createClient(): AcmeClient
+    public function createClient(): AcmeClient
     {
         $keyPair = self::getKeyPair();
         $secureHttpClient = self::$instance->factory->createSecureHttpClient($keyPair);
@@ -175,7 +175,7 @@ class LetsEncrypt
      * @return KeyPair
      * @throws InvalidKeyPairConfiguration
      */
-    protected static function getKeyPair(): KeyPair
+    protected function getKeyPair(): KeyPair
     {
         $publicKeyPath = config('lets_encrypt.public_key_path', storage_path('app/lets-encrypt/keys/account.pub.pem'));
         $privateKeyPath = config('lets_encrypt.private_key_path', storage_path('app/lets-encrypt/keys/account.pem'));
@@ -211,7 +211,7 @@ class LetsEncrypt
      * @param string $domain
      * @return PendingCertificate
      */
-    public static function certificate(string $domain): PendingCertificate
+    public function certificate(string $domain): PendingCertificate
     {
         return new PendingCertificate($domain);
     }

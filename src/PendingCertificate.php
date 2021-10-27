@@ -8,7 +8,7 @@ use Daanra\LaravelLetsEncrypt\Jobs\RegisterAccount;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestAuthorization;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
-use Illuminate\Foundation\Bus\PendingDispatch;
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 
 class PendingCertificate
 {
@@ -39,7 +39,7 @@ class PendingCertificate
     protected $retryList = [];
 
     /**
-     * @var int
+     * @var \DateTimeInterface|\DateInterval|int|null
      */
     protected $delay = 0;
 
@@ -54,11 +54,11 @@ class PendingCertificate
 
     /**
      * Creates a new certificate. The heavy work is pushed on the queue.
-     * @return array{LetsEncryptCertificate, PendingDispatch}
+     * @return LetsEncryptCertificate
      * @throws DomainAlreadyExists
      * @throws InvalidDomainException
      */
-    public function create(): array
+    public function create(): LetsEncryptCertificate
     {
         LetsEncrypt::validateDomain($this->domain);
         LetsEncrypt::checkDomainDoesNotExist($this->domain);
@@ -69,8 +69,7 @@ class PendingCertificate
             'domain' => $this->domain,
         ]);
 
-        return [
-            $certificate, RegisterAccount::withChain(array_merge([
+        RegisterAccount::withChain(array_merge([
                 new RequestAuthorization(
                     $certificate,
                     $this->tries,
@@ -85,28 +84,29 @@ class PendingCertificate
                 ),
             ], $this->chain))
                 ->dispatch($email, $this->tries, $this->retryAfter, $this->retryList)
-                ->delay($this->delay),
-        ];
+                ->delay($this->delay);
+
+        return $certificate;
     }
 
     /**
-     * @return mixed
+     * @return LetsEncryptCertificate
      * @throws InvalidDomainException
      */
-    public function renew()
+    public function renew(): LetsEncryptCertificate
     {
-        $domain = LetsEncryptCertificate::where('domain', $this->domain)->first();
+        $certificate = LetsEncryptCertificate::where('domain', $this->domain)->first();
         $email = config('lets_encrypt.universal_email_address', null);
 
-        return RegisterAccount::withChain(array_merge([
+        RegisterAccount::withChain(array_merge([
             new RequestAuthorization(
-                $domain,
+                $certificate,
                 $this->tries,
                 $this->retryAfter,
                 $this->retryList
             ),
             new RequestCertificate(
-                $domain,
+                $certificate,
                 $this->tries,
                 $this->retryAfter,
                 $this->retryList
@@ -114,13 +114,15 @@ class PendingCertificate
         ], $this->chain))
             ->dispatch($email, $this->tries, $this->retryAfter, $this->retryList)
             ->delay($this->delay);
+
+        return $certificate;
     }
 
     /**
      * @param int $tries
-     * @return $this
+     * @return static
      */
-    public function setTries(int $tries): PendingCertificate
+    public function setTries(int $tries): self
     {
         $this->tries = $tries;
 
@@ -129,9 +131,9 @@ class PendingCertificate
 
     /**
      * @param int $retryAfter
-     * @return $this
+     * @return static
      */
-    public function setRetryAfter(int $retryAfter): PendingCertificate
+    public function retryAfter(int $retryAfter): self
     {
         $this->retryAfter = $retryAfter;
 
@@ -140,9 +142,9 @@ class PendingCertificate
 
     /**
      * @param array $chain
-     * @return $this
+     * @return static
      */
-    public function setChain(array $chain): PendingCertificate
+    public function chain(array $chain): self
     {
         $this->chain = $chain;
 
@@ -153,9 +155,9 @@ class PendingCertificate
      * Calculate the number of seconds to wait before retrying the job.
      *
      * @param array $retryList
-     * @return $this
+     * @return static
      */
-    public function setRetryList(array $retryList): PendingCertificate
+    public function setRetryList(array $retryList): self
     {
         $this->retryList = $retryList;
 
@@ -164,9 +166,9 @@ class PendingCertificate
 
     /**
      * @param \DateTimeInterface|\DateInterval|int|null $delay
-     * @return $this
+     * @return static
      */
-    public function setDelay($delay): PendingCertificate
+    public function delay($delay): self
     {
         $this->delay = $delay;
 

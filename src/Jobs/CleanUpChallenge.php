@@ -6,7 +6,7 @@ use AcmePhp\Core\AcmeClient;
 use AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Events\CleanUpChallengeFailed;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
-use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CleanUpChallenge implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     /** @var AuthorizationChallenge */
     protected $challenge;
@@ -24,7 +24,7 @@ class CleanUpChallenge implements ShouldQueue
     /** @var AcmeClient */
     protected $client;
 
-    public function __construct(AuthorizationChallenge $httpChallenge, int $tries = null, int $retryAfter = null, $retryList = [])
+    public function __construct(AuthorizationChallenge $httpChallenge, int $tries = null, int $retryAfter = null, array $retryList = [])
     {
         $this->challenge = $httpChallenge;
         $this->tries = $tries;
@@ -47,8 +47,8 @@ class CleanUpChallenge implements ShouldQueue
      *
      * @return void
      */
-    public function failed()
+    public function failed(\Throwable $exception)
     {
-        event(new CleanUpChallengeFailed($this));
+        event(new CleanUpChallengeFailed($exception));
     }
 }

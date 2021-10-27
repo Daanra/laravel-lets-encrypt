@@ -10,7 +10,7 @@ use Daanra\LaravelLetsEncrypt\Events\StoreCertificateFailed;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToStoreCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
-use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StoreCertificate implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     /**
      * @var Certificate
@@ -103,8 +103,8 @@ class StoreCertificate implements ShouldQueue
      *
      * @return void
      */
-    public function failed()
+    public function failed(\Throwable $exception)
     {
-        event(new StoreCertificateFailed($this));
+        event(new StoreCertificateFailed($exception));
     }
 }

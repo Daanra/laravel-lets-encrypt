@@ -4,7 +4,7 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 
 use Daanra\LaravelLetsEncrypt\Events\RegisterAccountFailed;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
-use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class RegisterAccount implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     /** @var string|null */
     protected $email;
@@ -37,8 +37,8 @@ class RegisterAccount implements ShouldQueue
      *
      * @return void
      */
-    public function failed()
+    public function failed(\Throwable $exception)
     {
-        event(new RegisterAccountFailed($this));
+        event(new RegisterAccountFailed($exception));
     }
 }

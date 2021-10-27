@@ -8,7 +8,7 @@ use Daanra\LaravelLetsEncrypt\Exceptions\FailedToMoveChallengeException;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
-use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
 
 class RequestAuthorization implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     /** @var LetsEncryptCertificate */
     protected $certificate;
@@ -97,8 +97,8 @@ class RequestAuthorization implements ShouldQueue
      *
      * @return void
      */
-    public function failed()
+    public function failed(\Throwable $exception)
     {
-        event(new RequestAuthorizationFailed($this));
+        event(new RequestAuthorizationFailed($exception, $this->certificate));
     }
 }

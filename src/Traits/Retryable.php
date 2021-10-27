@@ -2,7 +2,7 @@
 
 namespace Daanra\LaravelLetsEncrypt\Traits;
 
-trait JobTrait
+trait Retryable
 {
 
     /**
@@ -31,7 +31,7 @@ trait JobTrait
      * In the $retryList property, you must pass a list of seconds to wait before retrying the job.
      * @return int
      */
-    public function retryAfter()
+    public function retryAfter(): int
     {
         return (! empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }

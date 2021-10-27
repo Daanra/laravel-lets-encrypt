@@ -2,24 +2,30 @@
 
 namespace Daanra\LaravelLetsEncrypt\Events;
 
-use Daanra\LaravelLetsEncrypt\Interfaces\NotifiableEvent;
+use Daanra\LaravelLetsEncrypt\Interfaces\LetsEncryptCertificateFailed;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ChallengeAuthorizationFailed implements NotifiableEvent
+class ChallengeAuthorizationFailed implements LetsEncryptCertificateFailed
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $data;
+    /** @var \Throwable */
+    protected $exception;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct(\Throwable $exception)
     {
-        $this->data = $data;
+        $this->exception = $exception;
+    }
+
+    public function getException(): \Throwable
+    {
+        return $this->exception;
     }
 }

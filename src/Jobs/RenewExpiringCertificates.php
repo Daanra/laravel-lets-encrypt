@@ -5,7 +5,7 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 use Daanra\LaravelLetsEncrypt\Collections\LetsEncryptCertificateCollection;
 use Daanra\LaravelLetsEncrypt\Events\RenewExpiringCertificatesFailed;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
-use Daanra\LaravelLetsEncrypt\Traits\JobTrait;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 class RenewExpiringCertificates implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, JobTrait;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     public function __construct(int $tries = null, int $retryAfter = null, $retryList = [])
     {
@@ -37,8 +37,8 @@ class RenewExpiringCertificates implements ShouldQueue
      *
      * @return void
      */
-    public function failed()
+    public function failed(\Throwable $exception)
     {
-        event(new RenewExpiringCertificatesFailed($this));
+        event(new RenewExpiringCertificatesFailed($exception));
     }
 }
