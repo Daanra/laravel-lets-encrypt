@@ -60,7 +60,7 @@ Creating a new SSL certificate for a specific domain is easy:
 \Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt::createNow('mydomain.com');
 ```
 
-Alternative syntax:
+Alternative syntax available from v0.3.0:
 
 ```php
 LetsEncrypt::certificate('mydomain.com')
