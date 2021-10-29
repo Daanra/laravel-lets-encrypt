@@ -4,11 +4,11 @@ namespace Daanra\LaravelLetsEncrypt;
 
 use Daanra\LaravelLetsEncrypt\Exceptions\DomainAlreadyExists;
 use Daanra\LaravelLetsEncrypt\Exceptions\InvalidDomainException;
+use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Jobs\RegisterAccount;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestAuthorization;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
-use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 
 class PendingCertificate
 {
