@@ -25,12 +25,18 @@ class LetsEncrypt
     protected $factory;
 
     /**
+     * @var LetsEncrypt
+     */
+    private static $instance;
+
+    /**
      * LetsEncrypt constructor.
      * @param SecureHttpClientFactory $factory
      */
     public function __construct(SecureHttpClientFactory $factory)
     {
         $this->factory = $factory;
+        self::$instance = $this;
     }
 
     /**
@@ -43,8 +49,8 @@ class LetsEncrypt
      */
     public function create(string $domain, array $chain = []): array
     {
-        $this->validateDomain($domain);
-        $this->checkDomainDoesNotExist($domain);
+        self::validateDomain($domain);
+        self::checkDomainDoesNotExist($domain);
 
         $email = config('lets_encrypt.universal_email_address');
 
@@ -69,8 +75,8 @@ class LetsEncrypt
      */
     public function createNow(string $domain): LetsEncryptCertificate
     {
-        $this->validateDomain($domain);
-        $this->checkDomainDoesNotExist($domain);
+        self::validateDomain($domain);
+        self::checkDomainDoesNotExist($domain);
 
         $email = config('lets_encrypt.universal_email_address');
 
@@ -155,8 +161,8 @@ class LetsEncrypt
      */
     public function createClient(): AcmeClient
     {
-        $keyPair = $this->getKeyPair();
-        $secureHttpClient = $this->factory->createSecureHttpClient($keyPair);
+        $keyPair = self::getKeyPair();
+        $secureHttpClient = self::$instance->factory->createSecureHttpClient($keyPair);
 
         return new AcmeClient(
             $secureHttpClient,
@@ -199,5 +205,14 @@ class LetsEncrypt
         $privateKey = new PrivateKey(file_get_contents($privateKeyPath));
 
         return new KeyPair($publicKey, $privateKey);
+    }
+
+    /**
+     * @param string $domain
+     * @return PendingCertificate
+     */
+    public function certificate(string $domain): PendingCertificate
+    {
+        return new PendingCertificate($domain);
     }
 }

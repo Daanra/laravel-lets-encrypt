@@ -5,8 +5,10 @@ namespace Daanra\LaravelLetsEncrypt\Jobs;
 use AcmePhp\Ssl\CertificateRequest;
 use AcmePhp\Ssl\DistinguishedName;
 use AcmePhp\Ssl\Generator\KeyPairGenerator;
+use Daanra\LaravelLetsEncrypt\Events\RequestCertificateFailed;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
+use Daanra\LaravelLetsEncrypt\Traits\Retryable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
 
 class RequestCertificate implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels, Retryable;
 
     /** @var LetsEncryptCertificate */
     protected $certificate;
@@ -24,10 +26,14 @@ class RequestCertificate implements ShouldQueue
     /** @var bool */
     protected $sync;
 
-    public function __construct(LetsEncryptCertificate $certificate)
+
+    public function __construct(LetsEncryptCertificate $certificate, int $tries = null, int $retryAfter = null, $retryList = [])
     {
         $this->sync = false;
         $this->certificate = $certificate;
+        $this->tries = $tries;
+        $this->retryAfter = $retryAfter;
+        $this->retryList = $retryList;
     }
 
     public function handle()
@@ -38,10 +44,11 @@ class RequestCertificate implements ShouldQueue
         $certificateResponse = $client->requestCertificate($this->certificate->domain, $csr);
         $certificate = $certificateResponse->getCertificate();
         $privateKey = $csr->getKeyPair()->getPrivateKey();
+
         if ($this->sync) {
-            StoreCertificate::dispatchNow($this->certificate, $certificate, $privateKey);
+            StoreCertificate::dispatchNow($this->certificate, $certificate, $privateKey, $this->tries, $this->retryAfter, $this->retryList);
         } else {
-            StoreCertificate::dispatch($this->certificate, $certificate, $privateKey);
+            StoreCertificate::dispatch($this->certificate, $certificate, $privateKey, $this->tries, $this->retryAfter, $this->retryList);
         }
     }
 
@@ -55,5 +62,15 @@ class RequestCertificate implements ShouldQueue
         $job = new static($certificate);
         $job->setSync(true);
         app(Dispatcher::class)->dispatchNow($job);
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @return void
+     */
+    public function failed(\Throwable $exception)
+    {
+        event(new RequestCertificateFailed($exception, $this->certificate));
     }
 }

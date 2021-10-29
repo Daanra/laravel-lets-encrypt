@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static bool|null forceDelete()
  * @method static bool|null restore()
  * @method static static create(array $attributes)
+ * @mixin \Eloquent
  */
 class LetsEncryptCertificate extends Model
 {
