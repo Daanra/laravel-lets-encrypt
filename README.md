@@ -169,7 +169,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Security
 
-If you discover any security related issues, please email daanraatjes+dev@gmail.com instead of using the issue tracker.
+If you discover any security related issues, please email opensource@daanraatjes.dev instead of using the issue tracker. If you have a question, please open an issue instead of sending an email.
 
 ## Credits
 
