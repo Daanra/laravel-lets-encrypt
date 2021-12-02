@@ -18,6 +18,11 @@ You can install the package via composer:
 composer require daanra/laravel-lets-encrypt
 ```
 
+If you're having installation problems with conflicting dependencies caused by Guzzle then you might want to run:
+```bash
+composer require daanra/laravel-lets-encrypt guzzlehttp/guzzle:^6.0  -w
+```
+
 Publish the configuration file and the migration:
 
 ```bash
