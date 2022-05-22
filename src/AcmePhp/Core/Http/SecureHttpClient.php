@@ -130,11 +130,11 @@ class SecureHttpClient
 
     private function extractSignOptionFromJWSAlg($alg)
     {
-        if (!preg_match('/^([A-Z]+)(\d+)$/', $alg, $match)) {
+        if (! preg_match('/^([A-Z]+)(\d+)$/', $alg, $match)) {
             throw new AcmeCoreClientException(sprintf('The given "%s" algorithm is not supported', $alg));
         }
 
-        if (!\defined('OPENSSL_ALGO_SHA'.$match[2])) {
+        if (! \defined('OPENSSL_ALGO_SHA'.$match[2])) {
             throw new AcmeCoreClientException(sprintf('The given "%s" algorithm is not supported', $alg));
         }
 
@@ -143,9 +143,11 @@ class SecureHttpClient
         switch ($match[1]) {
             case 'RS':
                 $format = DataSigner::FORMAT_DER;
+
                 break;
             case 'ES':
                 $format = DataSigner::FORMAT_ECDSA;
+
                 break;
             default:
                 throw new AcmeCoreClientException(sprintf('The given "%s" algorithm is not supported', $alg));
@@ -235,7 +237,7 @@ class SecureHttpClient
      */
     private function signPayload(array $protected, array $payload = null)
     {
-        if (!isset($protected['alg'])) {
+        if (! isset($protected['alg'])) {
             throw new \InvalidArgumentException('The property "alg" is required in the protected array');
         }
         $alg = $protected['alg'];
@@ -320,6 +322,7 @@ class SecureHttpClient
     {
         $call = function () use ($method, $endpoint, $data) {
             $request = $this->createRequest($method, $endpoint, $data);
+
             try {
                 $this->lastResponse = $this->httpClient->send($request);
             } catch (\Exception $exception) {
@@ -337,7 +340,7 @@ class SecureHttpClient
 
         $body = Utils::copyToString($this->lastResponse->getBody());
 
-        if (!$returnJson) {
+        if (! $returnJson) {
             return $body;
         }
 

@@ -108,14 +108,14 @@ class ServerErrorHandler
             $data = null;
         }
 
-        if (!$data || !isset($data['type'], $data['detail'])) {
+        if (! $data || ! isset($data['type'], $data['detail'])) {
             // Not JSON: not an ACME error response
             return $this->createDefaultExceptionForResponse($request, $response, $previous);
         }
 
         $type = preg_replace('/^urn:(ietf:params:)?acme:error:/i', '', $data['type']);
 
-        if (!isset(self::$exceptions[$type])) {
+        if (! isset(self::$exceptions[$type])) {
             // Unknown type: not an ACME error response
             return $this->createDefaultExceptionForResponse($request, $response, $previous);
         }

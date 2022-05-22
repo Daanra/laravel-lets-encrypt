@@ -76,7 +76,7 @@ class Certificate
      */
     public function getPublicKeyResource()
     {
-        if (!$resource = openssl_pkey_get_public($this->certificatePEM)) {
+        if (! $resource = openssl_pkey_get_public($this->certificatePEM)) {
             throw new CertificateFormatException(sprintf('Failed to convert certificate into public key resource: %s', openssl_error_string()));
         }
 

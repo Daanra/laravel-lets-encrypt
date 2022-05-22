@@ -10,7 +10,6 @@ use Daanra\LaravelLetsEncrypt\Jobs\RequestAuthorization;
 use Daanra\LaravelLetsEncrypt\Jobs\RequestCertificate;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 use Daanra\LaravelLetsEncrypt\Tests\TestCase;
-use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Queue;
 
 class LetsEncryptCertificateTest extends TestCase
@@ -66,7 +65,7 @@ class LetsEncryptCertificateTest extends TestCase
 
         Queue::fake();
 
-       $certificate->renew();
+        $certificate->renew();
 
         Queue::assertPushedWithChain(RegisterAccount::class, [
             new RequestAuthorization($certificate),
