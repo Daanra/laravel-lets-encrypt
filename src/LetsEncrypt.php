@@ -2,12 +2,12 @@
 
 namespace Daanra\LaravelLetsEncrypt;
 
-use AcmePhp\Core\AcmeClient;
-use AcmePhp\Core\Http\SecureHttpClientFactory;
-use AcmePhp\Ssl\Generator\KeyPairGenerator;
-use AcmePhp\Ssl\KeyPair;
-use AcmePhp\Ssl\PrivateKey;
-use AcmePhp\Ssl\PublicKey;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\AcmeClient;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Http\SecureHttpClientFactory;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\Generator\KeyPairGenerator;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\KeyPair;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\PrivateKey;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\PublicKey;
 use Daanra\LaravelLetsEncrypt\Exceptions\DomainAlreadyExists;
 use Daanra\LaravelLetsEncrypt\Exceptions\InvalidDomainException;
 use Daanra\LaravelLetsEncrypt\Exceptions\InvalidKeyPairConfiguration;
@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 
 class LetsEncrypt
 {
-    /** @var \AcmePhp\Core\Http\SecureHttpClientFactory */
+    /** @var \Daanra\LaravelLetsEncrypt\AcmePhp\Core\Http\SecureHttpClientFactory */
     protected $factory;
 
     /**

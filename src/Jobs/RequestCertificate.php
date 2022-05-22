@@ -2,9 +2,9 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use AcmePhp\Ssl\CertificateRequest;
-use AcmePhp\Ssl\DistinguishedName;
-use AcmePhp\Ssl\Generator\KeyPairGenerator;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\CertificateRequest;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\DistinguishedName;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\Generator\KeyPairGenerator;
 use Daanra\LaravelLetsEncrypt\Events\RequestCertificateFailed;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
 use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;

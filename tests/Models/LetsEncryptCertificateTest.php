@@ -66,12 +66,7 @@ class LetsEncryptCertificateTest extends TestCase
 
         Queue::fake();
 
-        $pendingDispatch = $certificate->renew();
-
-        $this->assertInstanceOf(PendingDispatch::class, $pendingDispatch);
-
-        // Jobs are only pushed after the pending dispatch leaves memory.
-        $pendingDispatch->__destruct();
+       $certificate->renew();
 
         Queue::assertPushedWithChain(RegisterAccount::class, [
             new RequestAuthorization($certificate),
