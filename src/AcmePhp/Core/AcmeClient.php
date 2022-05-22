@@ -81,7 +81,7 @@ class AcmeClient implements AcmeClientV2Interface
      */
     public function getHttpClient()
     {
-        if (!$this->initializedHttpClient) {
+        if (! $this->initializedHttpClient) {
             $this->initializedHttpClient = $this->uninitializedHttpClient;
 
             $this->initializedHttpClient->setNonceEndpoint($this->getResourceUrl(ResourcesDirectory::NEW_NONCE));
@@ -150,7 +150,7 @@ class AcmeClient implements AcmeClientV2Interface
         $client = $this->getHttpClient();
         $resourceUrl = $this->getResourceUrl(ResourcesDirectory::NEW_ORDER);
         $response = $client->request('POST', $resourceUrl, $client->signKidPayload($resourceUrl, $this->getResourceAccount(), $payload));
-        if (!isset($response['authorizations']) || !$response['authorizations']) {
+        if (! isset($response['authorizations']) || ! $response['authorizations']) {
             throw new ChallengeNotSupportedException();
         }
 
@@ -194,7 +194,7 @@ class AcmeClient implements AcmeClientV2Interface
         }
 
         // Waiting loop
-        while (time() <= $endTime && (!isset($response['status']) || 'pending' === $response['status'] || 'processing' === $response['status'])) {
+        while (time() <= $endTime && (! isset($response['status']) || 'pending' === $response['status'] || 'processing' === $response['status'])) {
             sleep(1);
             $response = (array) $client->request('POST', $challengeUrl, $client->signKidPayload($challengeUrl, $this->getResourceAccount(), null));
         }
@@ -202,7 +202,7 @@ class AcmeClient implements AcmeClientV2Interface
         if (isset($response['status']) && ('pending' === $response['status'] || 'processing' === $response['status'])) {
             throw new ChallengeTimedOutException($response);
         }
-        if (!isset($response['status']) || 'valid' !== $response['status']) {
+        if (! isset($response['status']) || 'valid' !== $response['status']) {
             throw new ChallengeFailedException($response);
         }
 
@@ -244,7 +244,7 @@ class AcmeClient implements AcmeClientV2Interface
         }
 
         // Waiting loop
-        while (time() <= $endTime && (!isset($response['status']) || \in_array($response['status'], ['pending', 'processing', 'ready']))) {
+        while (time() <= $endTime && (! isset($response['status']) || \in_array($response['status'], ['pending', 'processing', 'ready']))) {
             sleep(1);
             $response = $client->request('POST', $orderEndpoint, $client->signKidPayload($orderEndpoint, $this->getResourceAccount(), null));
         }
@@ -267,7 +267,7 @@ class AcmeClient implements AcmeClientV2Interface
      */
     public function revokeCertificate(Certificate $certificate, RevocationReason $revocationReason = null)
     {
-        if (!$endpoint = $this->getResourceUrl(ResourcesDirectory::REVOKE_CERT)) {
+        if (! $endpoint = $this->getResourceUrl(ResourcesDirectory::REVOKE_CERT)) {
             throw new CertificateRevocationException('This ACME server does not support certificate revocation.');
         }
 
@@ -305,7 +305,7 @@ class AcmeClient implements AcmeClientV2Interface
      */
     public function getResourceUrl($resource)
     {
-        if (!$this->directory) {
+        if (! $this->directory) {
             $this->directory = new ResourcesDirectory(
                 $this->getHttpClient()->request('GET', $this->directoryUrl)
             );
@@ -346,7 +346,7 @@ class AcmeClient implements AcmeClientV2Interface
      */
     private function getResourceAccount()
     {
-        if (!$this->account) {
+        if (! $this->account) {
             $payload = [
                 'onlyReturnExisting' => true,
             ];

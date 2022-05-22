@@ -40,7 +40,7 @@ class DataSigner
         Assert::oneOf($format, [self::FORMAT_ECDSA, self::FORMAT_DER], 'The format %s to sign request does not exists. Available format: %s');
 
         $resource = $privateKey->getResource();
-        if (!openssl_sign($data, $signature, $resource, $algorithm)) {
+        if (! openssl_sign($data, $signature, $resource, $algorithm)) {
             throw new DataSigningException(sprintf('OpenSSL data signing failed with error: %s', openssl_error_string()));
         }
 
@@ -61,6 +61,7 @@ class DataSigner
                     case OPENSSL_ALGO_SHA512:
                         return $this->DERtoECDSA($signature, 132);
                 }
+
                 throw new DataSigningException('Unable to generate a ECDSA signature with the given algorithm');
             default:
                 throw new DataSigningException('The given format does exists');

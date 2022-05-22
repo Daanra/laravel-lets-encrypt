@@ -26,7 +26,7 @@ class PrivateKey extends Key
      */
     public function getResource()
     {
-        if (!$resource = openssl_pkey_get_private($this->keyPEM)) {
+        if (! $resource = openssl_pkey_get_private($this->keyPEM)) {
             throw new KeyFormatException(sprintf('Failed to convert key into resource: %s', openssl_error_string()));
         }
 
@@ -39,7 +39,7 @@ class PrivateKey extends Key
     public function getPublicKey()
     {
         $resource = $this->getResource();
-        if (!$details = openssl_pkey_get_details($resource)) {
+        if (! $details = openssl_pkey_get_details($resource)) {
             throw new KeyFormatException(sprintf('Failed to extract public key: %s', openssl_error_string()));
         }
 
