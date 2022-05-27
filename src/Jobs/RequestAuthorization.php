@@ -2,7 +2,7 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use AcmePhp\Core\Protocol\AuthorizationChallenge;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Events\RequestAuthorizationFailed;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToMoveChallengeException;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;

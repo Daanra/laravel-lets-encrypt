@@ -2,8 +2,8 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use AcmePhp\Ssl\Certificate;
-use AcmePhp\Ssl\PrivateKey;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\Certificate;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\PrivateKey;
 use Daanra\LaravelLetsEncrypt\Contracts\PathGenerator;
 use Daanra\LaravelLetsEncrypt\Encoders\PemEncoder;
 use Daanra\LaravelLetsEncrypt\Events\StoreCertificateFailed;

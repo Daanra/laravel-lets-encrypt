@@ -2,8 +2,8 @@
 
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
-use AcmePhp\Core\AcmeClient;
-use AcmePhp\Core\Protocol\AuthorizationChallenge;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\AcmeClient;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Events\CleanUpChallengeFailed;
 use Daanra\LaravelLetsEncrypt\Support\PathGeneratorFactory;
 use Daanra\LaravelLetsEncrypt\Traits\Retryable;

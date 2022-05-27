@@ -2,11 +2,11 @@
 
 namespace Daanra\LaravelLetsEncrypt;
 
-use AcmePhp\Core\Http\Base64SafeEncoder;
-use AcmePhp\Core\Http\SecureHttpClientFactory;
-use AcmePhp\Core\Http\ServerErrorHandler;
-use AcmePhp\Ssl\Parser\KeyParser;
-use AcmePhp\Ssl\Signer\DataSigner;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Http\Base64SafeEncoder;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Http\SecureHttpClientFactory;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Http\ServerErrorHandler;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\Parser\KeyParser;
+use Daanra\LaravelLetsEncrypt\AcmePhp\Ssl\Signer\DataSigner;
 use Daanra\LaravelLetsEncrypt\Commands\LetsEncryptGenerateCommand;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use Illuminate\Support\ServiceProvider;
