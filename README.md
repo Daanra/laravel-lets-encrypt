@@ -118,7 +118,7 @@ It's possible to specify Subject Alternative Names as below:
 
 ```php
 LetsEncrypt::certificate('mydomain.com')
-        ->subjectAlternativeNames(['mydomain2.com'])
+        ->setSubjectAlternativeNames(['mydomain2.com'])
         ->create(); 
 ```
 
