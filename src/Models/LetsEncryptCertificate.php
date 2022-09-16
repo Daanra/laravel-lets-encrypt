@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property array $subject_alternative_names
  * @property-read bool $has_expired
  * @method static \Daanra\LaravelLetsEncrypt\Builders\LetsEncryptCertificateBuilder|\Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate query()
  * @method static \Daanra\LaravelLetsEncrypt\Builders\LetsEncryptCertificateBuilder|\Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate newQuery()
@@ -42,7 +43,7 @@ class LetsEncryptCertificate extends Model
 
     protected $casts = [
         'created' => 'boolean',
-        'subject_alternative_names' => 'json',
+        'subject_alternative_names' => 'array',
     ];
 
     public function newEloquentBuilder($query): LetsEncryptCertificateBuilder

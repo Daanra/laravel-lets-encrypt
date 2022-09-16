@@ -114,7 +114,7 @@ $certificate->forceDelete();
 
 ## Subject Alternative Names
 
-It's possible to specify Subject Alternative Names as below:
+It's also possible to specify Subject Alternative Names as below (requires >= 0.5.0):
 
 ```php
 LetsEncrypt::certificate('mydomain.com')

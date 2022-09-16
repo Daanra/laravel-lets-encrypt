@@ -9,7 +9,7 @@ class AddLetsEncryptCertificatesSubjectAlternativeNames extends Migration
     public function up()
     {
         Schema::table('lets_encrypt_certificates', function (Blueprint $table) {
-            $table->json('subject_alternative_names')->nullable()->after('domain');
+            $table->json('subject_alternative_names')->default('[]')->after('domain');
         });
     }
 
