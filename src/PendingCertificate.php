@@ -43,6 +43,11 @@ class PendingCertificate
     protected $delay = 0;
 
     /**
+     * @var array
+     */
+    protected $subjectAlternativeNames = [];
+
+    /**
      * PendingCertificate constructor.
      * @param string $domain
      */
@@ -66,6 +71,7 @@ class PendingCertificate
 
         $certificate = LetsEncryptCertificate::create([
             'domain' => $this->domain,
+            'subject_alternative_names' => $this->subjectAlternativeNames,
         ]);
 
         RegisterAccount::withChain(array_merge([
@@ -115,6 +121,18 @@ class PendingCertificate
             ->delay($this->delay);
 
         return $certificate;
+    }
+
+
+    /**
+     * @param array $domains
+     * @return static
+     */
+    public function setSubjectAlternativeNames(array $domains): self
+    {
+        $this->subjectAlternativeNames = $domains;
+
+        return $this;
     }
 
     /**

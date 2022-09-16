@@ -111,6 +111,17 @@ $certificate->delete();
 $certificate->forceDelete();
 ```
 
+
+## Subject Alternative Names
+
+It's possible to specify Subject Alternative Names as below:
+
+```php
+LetsEncrypt::certificate('mydomain.com')
+        ->setSubjectAlternativeNames(['mydomain2.com'])
+        ->create(); 
+```
+
 ## Failure events
 
 If one of the jobs fails, one of the following events will be dispatched:

@@ -29,6 +29,8 @@ class TestCase extends Orchestra
         ]);
 
         include_once __DIR__.'/../database/migrations/create_lets_encrypt_certificates_table.php.stub';
+        include_once __DIR__.'/../database/migrations/add_lets_encrypt_certificates_subject_alternative_names.php.stub';
         (new \CreateLetsEncryptCertificatesTable())->up();
+        (new \AddLetsEncryptCertificatesSubjectAlternativeNames())->up();
     }
 }

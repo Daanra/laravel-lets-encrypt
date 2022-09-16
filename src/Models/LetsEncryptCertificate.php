@@ -42,6 +42,7 @@ class LetsEncryptCertificate extends Model
 
     protected $casts = [
         'created' => 'boolean',
+        'subject_alternative_names' => 'json',
     ];
 
     public function newEloquentBuilder($query): LetsEncryptCertificateBuilder
