@@ -26,6 +26,13 @@ class LetsEncryptServiceProvider extends ServiceProvider
                     __DIR__ . "/../database/migrations/{$migrationFileName}.stub" => database_path('migrations/' . date('Y_m_d_His', time()) . '_' . $migrationFileName),
                 ], 'lets-encrypt');
             }
+
+            $sanMigrationFileName = 'add_lets_encrypt_certificates_subject_alternative_names.php';
+            if (! $this->migrationFileExists($sanMigrationFileName)) {
+                $this->publishes([
+                    __DIR__ . "/../database/migrations/{$sanMigrationFileName}.stub" => database_path('migrations/' . date('Y_m_d_His', time() + 1) . '_' . $sanMigrationFileName),
+                ], ['lets-encrypt', 'lets-encrypt-0.5']);
+            }
         }
 
         $this->commands([

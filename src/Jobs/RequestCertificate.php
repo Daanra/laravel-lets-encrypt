@@ -38,7 +38,7 @@ class RequestCertificate implements ShouldQueue
 
     public function handle()
     {
-        $distinguishedName = new DistinguishedName($this->certificate->domain);
+        $distinguishedName = new DistinguishedName($this->certificate->domain, null, null, null, null, null, null, $this->certificate->subject_alternative_names);
         $csr = new CertificateRequest($distinguishedName, (new KeyPairGenerator())->generateKeyPair());
         $client = LetsEncrypt::createClient();
         $certificateResponse = $client->requestCertificate($this->certificate->domain, $csr);

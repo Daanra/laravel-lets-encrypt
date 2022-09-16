@@ -69,10 +69,26 @@ class LetsEncryptTest extends TestCase
         $certificate = LetsEncrypt::certificate('test.test')->create();
 
         $this->assertEquals('test.test', $certificate->domain);
+        $this->assertEquals([], $certificate->subject_alternative_names);
 
         Queue::assertPushedWithChain(RegisterAccount::class, [
             RequestAuthorization::class,
             RequestCertificate::class,
         ]);
+    }
+
+    /** @test */
+    public function test_can_create_now_with_san()
+    {
+        Bus::fake();
+
+        $certificate = LetsEncrypt::certificate('somedomain.com')
+            ->setSubjectAlternativeNames(['other.somedomain.com'])
+            ->create();
+
+        $this->assertEquals('somedomain.com', $certificate->domain);
+        $this->assertEquals(['other.somedomain.com'], $certificate->subject_alternative_names);
+
+        Bus::assertDispatched(RegisterAccount::class);
     }
 }
