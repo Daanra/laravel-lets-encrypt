@@ -12,7 +12,6 @@ use Daanra\LaravelLetsEncrypt\Models\LetsEncryptCertificate;
 
 class PendingCertificate
 {
-
     /**
      * @var string
      */

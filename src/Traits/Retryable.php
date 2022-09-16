@@ -4,7 +4,6 @@ namespace Daanra\LaravelLetsEncrypt\Traits;
 
 trait Retryable
 {
-
     /**
      * The number of times the job may be attempted.
      *
