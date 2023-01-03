@@ -117,8 +117,8 @@ class PendingCertificate
                 $this->retryList
             ),
         ], $this->chain))
-            ->dispatch($email, $this->tries, $this->retryAfter, $this->retryList)
-            ->delay($this->delay);
+            ->delay($this->delay)
+            ->dispatch($email, $this->tries, $this->retryAfter, $this->retryList);
 
         return $certificate;
     }
