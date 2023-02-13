@@ -84,7 +84,7 @@ class LetsEncrypt
             'domain' => $domain,
         ]);
 
-        RegisterAccount::dispatchNow($email);
+        RegisterAccount::dispatchSync($email);
         RequestAuthorization::dispatchNow($certificate);
         RequestCertificate::dispatchNow($certificate);
 
@@ -148,7 +148,7 @@ class LetsEncrypt
 
         $email = config('lets_encrypt.universal_email_address', null);
 
-        RegisterAccount::dispatchNow($email);
+        RegisterAccount::dispatchSync($email);
         RequestAuthorization::dispatchNow($domain);
         RequestCertificate::dispatchNow($domain);
 
