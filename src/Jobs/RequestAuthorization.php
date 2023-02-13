@@ -74,7 +74,7 @@ class RequestAuthorization implements ShouldQueue
         $this->placeChallenge($httpChallenge);
 
         if ($this->sync) {
-            ChallengeAuthorization::dispatchNow($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
+            ChallengeAuthorization::dispatchSync($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
         } else {
             ChallengeAuthorization::dispatch($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
         }
@@ -89,7 +89,7 @@ class RequestAuthorization implements ShouldQueue
     {
         $job = new static($certificate);
         $job->setSync(true);
-        app(Dispatcher::class)->dispatchNow($job);
+        app(Dispatcher::class)->dispatchSync($job);
     }
 
     /**

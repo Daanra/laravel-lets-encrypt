@@ -46,7 +46,7 @@ class RequestCertificate implements ShouldQueue
         $privateKey = $csr->getKeyPair()->getPrivateKey();
 
         if ($this->sync) {
-            StoreCertificate::dispatchNow($this->certificate, $certificate, $privateKey, $this->tries, $this->retryAfter, $this->retryList);
+            StoreCertificate::dispatchSync($this->certificate, $certificate, $privateKey, $this->tries, $this->retryAfter, $this->retryList);
         } else {
             StoreCertificate::dispatch($this->certificate, $certificate, $privateKey, $this->tries, $this->retryAfter, $this->retryList);
         }
@@ -61,7 +61,7 @@ class RequestCertificate implements ShouldQueue
     {
         $job = new static($certificate);
         $job->setSync(true);
-        app(Dispatcher::class)->dispatchNow($job);
+        app(Dispatcher::class)->dispatchSync($job);
     }
 
     /**
