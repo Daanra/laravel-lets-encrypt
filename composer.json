@@ -1,5 +1,5 @@
 {
-    "name": "daanra/laravel-lets-encrypt",
+    "name": "brainstormforce/laravel-lets-encrypt",
     "description": "A Laravel package to easily generate SSL certificates using Let's Encrypt",
     "keywords": [
         "daanra",
