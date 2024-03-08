@@ -31,6 +31,7 @@ class LetsEncryptCertificateBuilder extends Builder
      */
     public function requiresRenewal(): self
     {
-        return $this->where('last_renewed_at', '<=', now()->subDays(61));
+        $days = config('letsencrypt.renew_after_last_renewal_days', 60);
+        return $this->where('last_renewed_at', '<=', now()->subDays($days));
     }
 }
