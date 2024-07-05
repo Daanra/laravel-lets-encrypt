@@ -3,6 +3,7 @@
 namespace Daanra\LaravelLetsEncrypt\Jobs;
 
 use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Protocol\AuthorizationChallenge;
+use Daanra\LaravelLetsEncrypt\Events\BeforeDnsChallengeAuthorization;
 use Daanra\LaravelLetsEncrypt\Events\RequestAuthorizationFailed;
 use Daanra\LaravelLetsEncrypt\Exceptions\FailedToMoveChallengeException;
 use Daanra\LaravelLetsEncrypt\Facades\LetsEncrypt;
@@ -52,6 +53,18 @@ class RequestAuthorization implements ShouldQueue
     }
 
     /**
+     * Out of the array of challenges we have, we want to find the DNS challenge.
+     * @param AuthorizationChallenge[] $challenges
+     * @return AuthorizationChallenge
+     */
+    protected function getDnsChallenge(array $challenges): AuthorizationChallenge
+    {
+        return collect($challenges)->first(function (AuthorizationChallenge $challenge): bool {
+            return Str::startsWith($challenge->getType(), 'dns');
+        });
+    }
+
+    /**
      * Stores the HTTP-01 challenge at the appropriate place on disk.
      * @param AuthorizationChallenge $challenge
      * @throws FailedToMoveChallengeException
@@ -70,13 +83,26 @@ class RequestAuthorization implements ShouldQueue
     {
         $client = LetsEncrypt::createClient();
         $challenges = $client->requestAuthorization($this->certificate->domain);
-        $httpChallenge = $this->getHttpChallenge($challenges);
-        $this->placeChallenge($httpChallenge);
+        $defaultChallenge = config('lets_encrypt.challenge_type', 'http');
+
+        switch ($defaultChallenge) {
+            case 'http':
+                $challenge = $this->getHttpChallenge($challenges);
+                $this->placeChallenge($challenge);
+                break;
+            case 'dns':
+                $challenge = $this->getDnsChallenge($challenges);
+                $payLoad = $challenge->getPayload();
+                event(new BeforeDnsChallengeAuthorization($this->certificate, $challenge, $payLoad));
+                break;
+            default:
+                throw new \RuntimeException('Invalid challenge type: ' . $defaultChallenge);
+        }
 
         if ($this->sync) {
-            ChallengeAuthorization::dispatchSync($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
+            ChallengeAuthorization::dispatchSync($challenge, $this->tries, $this->retryAfter, $this->retryList);
         } else {
-            ChallengeAuthorization::dispatch($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
+            ChallengeAuthorization::dispatch($challenge, $this->tries, $this->retryAfter, $this->retryList);
         }
     }
 
