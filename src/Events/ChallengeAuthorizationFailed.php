@@ -2,6 +2,7 @@
 
 namespace Daanra\LaravelLetsEncrypt\Events;
 
+use Daanra\LaravelLetsEncrypt\AcmePhp\Core\Protocol\AuthorizationChallenge;
 use Daanra\LaravelLetsEncrypt\Interfaces\LetsEncryptCertificateFailed;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -14,13 +15,17 @@ class ChallengeAuthorizationFailed implements LetsEncryptCertificateFailed
     /** @var \Throwable */
     protected $exception;
 
+    /** @var mixed */
+    protected $challenge;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(\Throwable $exception)
+    public function __construct(\Throwable $exception, AuthorizationChallenge $challenge)
     {
+        $this->challenge = $challenge;
         $this->exception = $exception;
     }
 
