@@ -50,6 +50,6 @@ class ChallengeAuthorization implements ShouldQueue
      */
     public function failed(\Throwable $exception)
     {
-        event(new ChallengeAuthorizationFailed($exception));
+        event(new ChallengeAuthorizationFailed($exception, $this->challenge));
     }
 }

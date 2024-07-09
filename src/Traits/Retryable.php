@@ -34,4 +34,14 @@ trait Retryable
     {
         return (! empty($this->retryList)) ? $this->retryList[$this->attempts() - 1] : 0;
     }
+
+    /**
+     * Calculate the number of seconds to wait before retrying the job.
+     *
+     * @return array<int, int>
+     */
+    public function backoff(): array
+    {
+        return $this->retryList;
+    }
 }
