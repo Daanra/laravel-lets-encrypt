@@ -33,4 +33,9 @@ class ChallengeAuthorizationFailed implements LetsEncryptCertificateFailed
     {
         return $this->exception;
     }
+
+    public function getChallenge(): AuthorizationChallenge
+    {
+        return $this->challenge;
+    }
 }
