@@ -76,7 +76,7 @@ class RequestAuthorization implements ShouldQueue
         if ($this->sync) {
             ChallengeAuthorization::dispatchSync($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
         } else {
-            if (!empty($this->chained)) {
+            if (! empty($this->chained)) {
                 $this->prependToChain(new ChallengeAuthorization($httpChallenge, $this->tries, $this->retryAfter, $this->retryList));
             } else {
                 ChallengeAuthorization::dispatch($httpChallenge, $this->tries, $this->retryAfter, $this->retryList);
