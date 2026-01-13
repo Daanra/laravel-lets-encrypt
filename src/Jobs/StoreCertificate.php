@@ -18,6 +18,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class StoreCertificate implements ShouldQueue
 {
@@ -103,8 +104,8 @@ class StoreCertificate implements ShouldQueue
      *
      * @return void
      */
-    public function failed(\Throwable $exception)
+    public function failed(Throwable $exception)
     {
-        event(new StoreCertificateFailed($exception));
+        event(new StoreCertificateFailed($exception, $this->dbCertificate));
     }
 }
